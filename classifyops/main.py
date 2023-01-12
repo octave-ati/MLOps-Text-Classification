@@ -17,6 +17,10 @@ warnings.filterwarnings("ignore")
 
 # This function will be called from the Python interpreter
 def elt_data():
+    """
+    This function extracts the dataset from the github project
+    It then transfers it to a local file
+    """
     # Extract and Load
     projects = pd.read_csv(config.PROJECTS_URL)
     tags = pd.read_csv(config.TAGS_URL)
@@ -32,7 +36,14 @@ def elt_data():
     logger.info("✅ Data Saved")
 
 # Optimizing hyperparameters
-def optimize(args_fp, study_name, num_trials):
+def optimize(args_fp: json, study_name:str, num_trials:int ):
+    """Runs a hyperparameter optimization algorithm
+
+    Args:
+        args_fp (json): Base arguments to be used at initialization
+        study_name (str): Name of the MLflow study
+        num_trials (int): Number of trials of the study
+    """
     # Loading labeled data
     df = pd.read_csv(Path(config.DATA_DIR, "labeled_projects.csv"))
     args = Namespace(**utils.load_dict(filepath=args_fp))
@@ -57,11 +68,21 @@ def optimize(args_fp, study_name, num_trials):
     # Best trial
     trials_df = study.trials_dataframe()
     trials_df = trials_df.sort_values(["user_attrs_f1"], ascending=False)
+
+    # Saving best parameters
     utils.save_dict({**args.__dict__, **study.best_trial.params}, args_fp, cls=NumpyEncoder)
     print(f"\nBest value (f1): {study.best_trial.value}")
     print(f"Best hyperparameters: {json.dumps(study.best_trial.params, indent=2)}")
 
-def train_model(args_fp, experiment_name, run_name):
+def train_model(args_fp: json , experiment_name: str, run_name: str):
+    """Trains the model (generally 100 epochs) and records experiment to MLflow
+    The function also logs metrics and artifacts to mlflow for later retrieval
+
+    Args:
+        args_fp (json): Arguments to be used within the model training
+        experiment_name (str): Name of the MLflow experiment
+        run_name (str): Name of the MLflow training run
+    """
     # Loading labeled data
     df = pd.read_csv(Path(config.DATA_DIR, "labeled_projects.csv"))
 
@@ -94,8 +115,22 @@ def train_model(args_fp, experiment_name, run_name):
     open(Path(config.CONFIG_DIR, "run_id.txt"), "w").write(run_id)
     utils.save_dict(performance, Path(config.CONFIG_DIR, "performance.json"))
 
-def load_artifacts(run_id, best=True):
-    """Load artifacts for a given run_id."""
+def load_artifacts(run_id: str, best: bool=True) -> dict:
+    """Loads artifacts from a MLFlow experiment
+
+    Args:
+        run_id (str): Run ID of the MLflow experiment
+        best (bool, optional): Either we retrieve the best value (stored in the root model folder)
+        Or the value of the experiment with the given run_id. Defaults to True.
+
+    Returns:
+        dict:
+                args(dict): Final optimized arguments
+                label_encoder(model): Saved LabelEncoder
+                vectorizer(model): Pickled character vectorizer
+                model(model): Pickled Model
+                performance(dict): Performance metrics.
+    """
     # Locate specifics artifacts directory
     experiment_id = mlflow.get_run(run_id=run_id).info.experiment_id
 
@@ -120,11 +155,24 @@ def load_artifacts(run_id, best=True):
         "performance": performance
     }
 
-def predict_tag(text, run_id=None):
-    """Predict tag for text."""
+def predict_tag(text: str, run_id: str=None, best: bool=True)-> list(dict):
+    """Predicts a tag with the retrieved artifacts
+
+    Args:
+        text (str): Text input (that we want to predict)
+        run_id (str, optional): Run_ID of the experiment we want to load assets from. Defaults to None.
+        best (bool, optional): True if we want to retrieve the best performing model (F1 Score).
+        False if we want to load assets from the given run_id. Defaults to True.
+
+    Returns:
+        list(dict) - single element list :
+            input_text(str): Same as the text given as an argument.
+            predicted_tags(str): Predicted tag from config.ACCEPTED_TAGS
+    """
+
     if not run_id:
         run_id = open(Path(config.CONFIG_DIR, "run_id.txt")).read()
-    artifacts = load_artifacts(run_id=run_id)
+    artifacts = load_artifacts(run_id=run_id, best=best)
     prediction = predict.predict(texts=[text], artifacts=artifacts)
     print(json.dumps(prediction, indent=2))
     return prediction
