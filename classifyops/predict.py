@@ -1,10 +1,10 @@
 import numpy as np
 
 # Custom predict function
-def custom_predict(y_prob, class_thresholds, index):
+def custom_predict(y_prob, threshold, index):
   """Custom predict function that defaults
   to an index if conditions are not met."""
-  y_pred = [np.argmax(p) if max(p) > class_thresholds[str(np.argmax(p))] else index for p in
+  y_pred = [np.argmax(p) if max(p) > threshold[str(np.argmax(p))] else index for p in
   y_prob]
   return np.array(y_pred)
 

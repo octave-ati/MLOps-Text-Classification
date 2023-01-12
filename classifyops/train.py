@@ -84,11 +84,12 @@ def train(args, df, trial=None):
       "performance": performance
   }
 
+#
 # Defining our optimization objective
 def objective(args, df, trial):
   global best_f1
   # Parameters to tune
-  args.analayzer = trial.suggest_categorical("analyzer", ["word", "char", "char_wb"])
+  args.analyzer = trial.suggest_categorical("analyzer", ["word", "char", "char_wb"])
   args.ngram_max_range = trial.suggest_int("ngram_max_range", 3, 10)
   args.learning_rate = trial.suggest_loguniform("learning_rate", 1e-2, 1e0)
   args.power_t = trial.suggest_uniform("power_t", 0.1, 0.5)
@@ -115,13 +116,11 @@ def objective(args, df, trial):
     print(f"New best performance : {best_f1}")
     print("Saving model data")
 
-    with open(Path(config.MODEL_DIR, "label_encoder.json"),"wb") as file:
-      joblib.dump(artifacts["label_encoder"], file)
+    artifacts["label_encoder"].save(Path(config.MODEL_DIR, "label_encoder.json"))
     with open(Path(config.MODEL_DIR,"vectorizer.pkl"), "wb") as file:
       joblib.dump(artifacts["vectorizer"], file)
     with open(Path(config.MODEL_DIR,"model.pkl"), "wb") as file:
       joblib.dump(artifacts["model"], file)
-    with open(Path(config.MODEL_DIR,"performance.json"), "wb") as file:
-      joblib.dump(artifacts["performance"], file)
+    utils.save_dict(artifacts["performance"], Path(config.MODEL_DIR, "performance.json"))
 
   return overall_performance["f1"]

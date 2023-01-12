@@ -105,7 +105,7 @@ class LabelEncoder(object):
 
     @classmethod
     def load(cls, fp):
-        with open(fp, "r") as fp:
+        with open(fp, "rb") as fp:
             kwargs = json.load(fp=fp)
         return cls(**kwargs)
 

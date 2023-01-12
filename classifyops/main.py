@@ -2,7 +2,7 @@ import pandas as pd
 from pathlib import Path
 from argparse import Namespace
 import warnings
-import logging
+from config.config import logger
 import json
 from config import config
 from classifyops import utils, data, train, predict
@@ -14,8 +14,6 @@ import joblib
 import tempfile
 
 warnings.filterwarnings("ignore")
-
-logger = logging.getLogger()
 
 # This function will be called from the Python interpreter
 def elt_data():
