@@ -1,0 +1,19 @@
+site_name: Classifyops
+site_url: https://github.com/Faskill/MLOps-Text-Classification
+repo_url: https://github.com/Faskill/MLOps-Text-Classification
+nav:
+  - Home: index.md
+  - workflows:
+    - main: classifyops/main.md
+  - classifyops:
+    - data: classifyops/data.md
+    - evaluate: classifyops/evaluate.md
+    - predict: classifyops/predict.md
+    - train: classifyops/train.md
+    - utils: classifyops/utils.md
+theme: readthedocs
+plugins:
+  - mkdocstrings
+watch:
+  - .  # reload docs for any file changes
+

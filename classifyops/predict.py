@@ -18,7 +18,7 @@ def custom_predict(y_prob, threshold: dict, index: int) -> np.array:
     return np.array(y_pred)
 
 
-def predict(texts: List[str], artifacts) -> list[dict]:
+def predict(texts: list[str], artifacts) -> list[dict]:
     """Predict tags from a list of strings with provided artifacts
 
     Args:

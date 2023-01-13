@@ -33,8 +33,7 @@ def replace_minority_labels(df: pd.DataFrame, label_col: str, min_freq: int,
     Args:
         df (pd.DataFrame): Input dataframe
         label_col (str): Column where labels are located
-        min_freq (int): Minimal label count.
-        All labels with a count below min_freq will be replaced with new_label
+        min_freq (int): Minimal label count. All labels with a count below min_freq will be replaced with new_label
         new_label (str, optional): Name of the replacement label. Defaults to "other".
 
     Returns:
@@ -168,8 +167,7 @@ def create_splits(X, y, train_size: float=0.7):
     With a ratio of 0.5
 
     Args:
-        X, y: Allowed inputs are lists, numpy arrays, scipy-sparse
-        matrices or pandas dataframes.
+        X, y: Allowed inputs are lists, numpy arrays or pandas dataframes.
         train_size (float, optional): Train split ratio. Defaults to 0.7.
 
     Returns:
