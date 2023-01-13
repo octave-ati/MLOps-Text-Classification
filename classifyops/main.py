@@ -155,7 +155,7 @@ def load_artifacts(run_id: str, best: bool=True) -> dict:
         "performance": performance
     }
 
-def predict_tag(text: str, run_id: str=None, best: bool=True)-> list(dict):
+def predict_tag(text: str, run_id: str=None, best: bool=True)-> list[dict]:
     """Predicts a tag with the retrieved artifacts
 
     Args:

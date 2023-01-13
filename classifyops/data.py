@@ -9,22 +9,61 @@ import pandas as pd
 
 stemmer = PorterStemmer()
 
-def replace_oos_labels(df, labels, label_col, oos_label="other"):
-    """Replace out of scope (oos) labels."""
+def replace_oos_labels(df: pd.DataFrame, labels: list, label_col:str,
+ oos_label: str="other") -> pd.DataFrame:
+    """Replacing out of scope (OOS) labels with predefined label
+
+    Args:
+        df (pd.DataFrame): Input dataframe
+        labels (list): List of labels within defined scope
+        label_col (str): Columns where labels are located.
+        oos_label (str, optional): How to name out of scope labels. Defaults to "other".
+
+    Returns:
+        pd.DataFrame: Output dataframe with modified OOS labels
+    """
     oos_tags = [item for item in df[label_col].unique() if item not in labels]
     df[label_col] = df[label_col].apply(lambda x: oos_label if x in oos_tags else x)
     return df
 
-def replace_minority_labels(df, label_col, min_freq, new_label="other"):
-    """Replace minority labels with another label."""
+def replace_minority_labels(df: pd.DataFrame, label_col: str, min_freq: int,
+ new_label: str="other") -> pd.DataFrame:
+    """Replacing minority labels with predefined label
+
+    Args:
+        df (pd.DataFrame): Input dataframe
+        label_col (str): Column where labels are located
+        min_freq (int): Minimal label count.
+        All labels with a count below min_freq will be replaced with new_label
+        new_label (str, optional): Name of the replacement label. Defaults to "other".
+
+    Returns:
+        pd.DataFrame: Output dataframe with modified minority labels.
+    """
     labels = Counter(df[label_col].values)
     labels_above_freq = Counter(label for label in labels.elements() if (labels[label] >= min_freq))
     df[label_col] = df[label_col].apply(lambda label: label if label in labels_above_freq else None)
     df[label_col] = df[label_col].fillna(new_label)
     return df
 
-def clean_text(text, lower=True, stem=False, stopwords=config.STOPWORDS):
-    """Clean raw text."""
+def clean_text(text: str, lower: bool=True, stem: bool=False,
+ stopwords: list[str]=config.STOPWORDS) -> str:
+    """Performing following text preprocessing process:
+        - Transformation to lower case (if lower=True)
+        - Stopwords removal (from stopwords argument)
+        - Removing non alphanumeric characters
+        - Removing URLs
+        - Stemming with nltk base PorterStemmer(if stem=True)
+
+    Args:
+        text (str): Input text.
+        lower (bool, optional): Does the function lower the text?. Defaults to True.
+        stem (bool, optional): Does the function use stemming?. Defaults to False.
+        stopwords (list, optional): List of stopwords to be used. Defaults to config.STOPWORDS.
+
+    Returns:
+        str: Transformed string.
+    """
     # Lower
     if lower:
         text = text.lower()
@@ -51,8 +90,18 @@ def clean_text(text, lower=True, stem=False, stopwords=config.STOPWORDS):
 
     return text
 
-def preprocess(df, lower, stem, min_freq):
-    """Preprocess the data."""
+def preprocess(df: pd.DataFrame, lower :bool, stem :bool, min_freq: int) -> pd.DataFrame:
+    """Preprocessing the data
+
+    Args:
+        df (pd.DataFrame): _description_
+        lower (bool): _description_
+        stem (bool): _description_
+        min_freq (int): _description_
+
+    Returns:
+        pd.DataFrame: _description_
+    """
     df["text"] = df.title + " " + df.description  # feature engineering
     df.text = df.text.apply(clean_text, lower=lower, stem=stem)  # clean text
     df = replace_oos_labels(
@@ -66,7 +115,8 @@ def preprocess(df, lower, stem, min_freq):
 
 # Defining custom LabelEncoder
 class LabelEncoder(object):
-    """Encode labels into unique indices"""
+    """Defining a custom Label Encoder (based on sklearn's implementation)
+    """
     def __init__(self, class_to_index={}):
         self.class_to_index = class_to_index or {}  # mutable defaults ;)
         self.index_to_class = {v: k for k, v in self.class_to_index.items()}
@@ -111,10 +161,22 @@ class LabelEncoder(object):
 
 from sklearn.model_selection import train_test_split
 # Creating a function to quickly define test/train/val splits
-def create_splits(X, y, train_size = 0.7):
-  """Generate balanced data splits"""
-  X_train, X_, y_train, y_ = train_test_split(
+def create_splits(X, y, train_size: float=0.7):
+    """This function automatically creates train, test and validation splits.
+    Train split ratio is calculated from the train_size parameter.
+    Test and validation split are then created from the remaining dataset
+    With a ratio of 0.5
+
+    Args:
+        X, y: Allowed inputs are lists, numpy arrays, scipy-sparse
+        matrices or pandas dataframes.
+        train_size (float, optional): Train split ratio. Defaults to 0.7.
+
+    Returns:
+        X_train, X_val, X_test, y_train, y_val, y_test.
+    """
+    X_train, X_, y_train, y_ = train_test_split(
       X, y, train_size=train_size, stratify=y)
-  X_val, X_test, y_val, y_test = train_test_split(
+    X_val, X_test, y_val, y_test = train_test_split(
       X_, y_, train_size=0.5, stratify=y_)
-  return X_train, X_val, X_test, y_train, y_val, y_test
+    return X_train, X_val, X_test, y_train, y_val, y_test
