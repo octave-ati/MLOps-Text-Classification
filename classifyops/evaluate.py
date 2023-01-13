@@ -1,11 +1,19 @@
 import numpy as np
+import pandas as pd
 from sklearn.metrics import precision_recall_fscore_support
 from snorkel.slicing import PandasSFApplier
 from snorkel.slicing import slicing_function
 
 @slicing_function()
-def nlp_cnn(x):
-    """NLP Projects that use convolution."""
+def nlp_cnn(x) :
+    """Returns a slice containing projects with a NLP tag and convolution in their text
+
+    Args:
+        x (pd.DataFrame): Dataset to be sliced
+
+    Returns:
+        pd.DataFrame : Sliced dataset.
+    """
     nlp_projects = "natural-language-processing" in x.tag
     convolution_projects = "CNN" in x.text or "convolution" in x.text
     return (nlp_projects and convolution_projects)
@@ -13,12 +21,32 @@ def nlp_cnn(x):
 
 @slicing_function()
 def short_text(x):
-    """Projects with short titles and descriptions."""
+    """Returns a slice containing projects with less than 8 words in their description
+
+    Args:
+        x (pd.DataFrame): Dataset to be sliced
+
+    Returns:
+        pd.DataFrame : Sliced dataset.
+    """
     return len(x.text.split()) < 8  # less than 8 words
 
 
-def get_slice_metrics(y_true, y_pred, slices):
-    """Generate metrics for slices of data."""
+def get_slice_metrics(y_true, y_pred, slices) -> dict:
+    """Calculate metrics for each slices
+
+    Args:
+        y_true (pd.df or np.array): True values
+        y_pred (pd.df or np.array): Predicted values
+        slices (List[pd.DataFrame or np.array]): List of slices
+
+    Returns:
+        dict: Return slice metrics including :
+            - Precision
+            - Recall
+            - F1 score
+            - Number of samples of the slice
+    """
     metrics = {}
     for slice_name in slices.dtype.names:
         mask = slices[slice_name].astype(bool)
@@ -33,8 +61,22 @@ def get_slice_metrics(y_true, y_pred, slices):
             metrics[slice_name]["num_samples"] = len(y_true[mask])
     return metrics
 
-def get_metrics(y_true, y_pred, classes, df=None):
-    """Performance metrics using ground truths and predictions."""
+def get_metrics(y_true, y_pred, classes: list, df: pd.DataFrame=None) -> dict[dict]:
+    """Calculate overall and class metrics, returns slice metrics if required.
+
+    Args:
+        y_true (pd.df or np.array): True values
+        y_pred (pd.df or np.array): Predicted values
+        classes (list): List of classes to be considered (multiclass prediction)
+        df (pd.DataFrame): Dataframe to be sliced. Defaults to None.
+
+    Returns:
+        dict[dict]: Returns for the overall dataset, for each class and each slice:
+            - Precision
+            - Recall
+            - F1 score
+            - Number of samples of the dataset / class or slice
+    """
     # Performance
     metrics = {"overall": {}, "class": {}}
 
