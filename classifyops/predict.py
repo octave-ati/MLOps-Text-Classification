@@ -26,7 +26,7 @@ def predict(texts: List[str], artifacts) -> list[dict]:
         artifacts (dict): Dictionary containing the following elements:
             - vectorizer(model) : Character vectorizer
             - model (SGDclassifier model) : Trained prediction model
-            - args (dict) : model arguments
+            - args (dict) : model arguments (see train function in train.py)
             - label_encoder (LabelEncoder()) : Custom Label Encoder instance.
             - performance (dict, Optional) : Performance of the provided model.
 

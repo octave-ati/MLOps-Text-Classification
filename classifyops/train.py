@@ -17,8 +17,53 @@ min_freq = 75
 # Initializing a variable for best f1 value
 best_f1 = 0
 
-def train(args, df, trial=None):
+def train(args: dict, df: pd.DataFrame, trial: optuna.trial.Trial=None) -> dict:
+  """Trains a SGDClassifier model with the given arguments (see args).
+    The training is conducted on 70% of the initial dataframe.
+    Before training, the df is preprocessed and vectorized using TFIDF.
+    The train set is also oversampled to ensure equity between classes.
+    This function returns a dictionary with the model performance and artifacts.
 
+  Args:
+      args (dict): Arguments the model will be trained with.
+        Must contain the following arguments (with example) :
+        {
+          "shuffle": true,
+          "subset": null,
+          "min_freq": 75,
+          "lower": true,
+          "stem": false,
+          "analyzer": "char_wb",
+          "ngram_max_range": 8,
+          "alpha": 0.0001,
+          "learning_rate": 0.0168175454255382,
+          "power_t": 0.4621204423573871,
+          "threshold": { #Those are class thresholds (see custom_predict in predict.py)
+            "0": 0.43187984953453573,
+            "1": 0.4918490095691183,
+            "2": 0.5422219542982806,
+            "3": 0.5
+          },
+          "num_epochs": 100
+        }
+
+      trial (optuna.trial.Trial, optional): Optuna trial.
+        Will only be used in the case of a hyperparameter optimization.
+        If no trial is selected, the artifacts will be saved to mlflow.
+        For more info see optimize function below.
+        Defaults to None.
+
+  Raises:
+      optuna.TrialPruned: If the trial is pruned, skips to the next trial.
+
+  Returns:
+      artifacts (dict): Dictionary containing the following elements:
+            - vectorizer(model) : Character vectorizer
+            - model (SGDclassifier model) : Trained prediction model
+            - args (dict) : model arguments (same format as args above)
+            - label_encoder (LabelEncoder()) : Custom Label Encoder instance.
+            - performance (dict, Optional) : Performance of the provided model.
+  """
   # Setup
   utils.set_seeds()
   df = df.sample(frac=1).reset_index(drop=True)
@@ -57,12 +102,12 @@ def train(args, df, trial=None):
                 f"val_loss: {val_loss:.5f}"
             )
 
-    # # Logging metrics
-    # if not trial:
-    #   mlflow.log_metrics({"train_loss": train_loss, "val_loss":val_loss},
-    #                      step=epoch)
+    # Logging metrics
+    if not trial:
+      mlflow.log_metrics({"train_loss": train_loss, "val_loss":val_loss},
+                         step=epoch)
 
-     # Pruning ==> this part is implemented in the hyperparameter optimization part
+    # Pruning ==> this part is implemented in the hyperparameter optimization part
     if trial:
         trial.report(val_loss, epoch)
         if trial.should_prune():
@@ -86,7 +131,27 @@ def train(args, df, trial=None):
 
 #
 # Defining our optimization objective
-def objective(args, df, trial):
+def objective(args: dict, df: pd.DataFrame, trial: optuna.trial.Trial) -> float:
+  """Objective defined to perform hyperparameter optimization using the optuna package.
+    Target metric : f1 score
+    Arguments to tune :
+      - Character analyzer (analyzer)
+      - Ngram_max_range : Defines the number of ngrams of the vectorizer
+      - Learning rate
+      - Power_t : The exponent for inverse scaling learning rate
+      - Class thresholds for classes 0, 1 and 2 (class 3 is our "other" class)
+
+    At the end of each step, if the model has the best f1 score :
+    Saves the model to the root MODEL_DIR directory
+
+  Args:
+      args (dict): See argument format in train function above
+      df (pd.DataFrame): Input dataframe
+      trial (optuna.trial.Trial): Optuna trial
+
+  Returns:
+      float: F1 score of the optimization step
+  """
   global best_f1
   # Parameters to tune
   args.analyzer = trial.suggest_categorical("analyzer", ["word", "char", "char_wb"])
