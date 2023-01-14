@@ -10,6 +10,7 @@ from config import config
 from pathlib import Path
 import optuna
 import joblib
+import mlflow
 
 # Defining our training function, encapsulating all of the components developed prior
 min_freq = 75
