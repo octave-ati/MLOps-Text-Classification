@@ -1,16 +1,19 @@
-from nltk.stem import PorterStemmer
-import re
-from config import config
-from collections import Counter
 import json
+import re
+from collections import Counter
+
 import numpy as np
 import pandas as pd
+from nltk.stem import PorterStemmer
 
+from config import config
 
 stemmer = PorterStemmer()
 
-def replace_oos_labels(df: pd.DataFrame, labels: list, label_col:str,
- oos_label: str="other") -> pd.DataFrame:
+
+def replace_oos_labels(
+    df: pd.DataFrame, labels: list, label_col: str, oos_label: str = "other"
+) -> pd.DataFrame:
     """Replacing out of scope (OOS) labels with predefined label
 
     Args:
@@ -26,8 +29,10 @@ def replace_oos_labels(df: pd.DataFrame, labels: list, label_col:str,
     df[label_col] = df[label_col].apply(lambda x: oos_label if x in oos_tags else x)
     return df
 
-def replace_minority_labels(df: pd.DataFrame, label_col: str, min_freq: int,
- new_label: str="other") -> pd.DataFrame:
+
+def replace_minority_labels(
+    df: pd.DataFrame, label_col: str, min_freq: int, new_label: str = "other"
+) -> pd.DataFrame:
     """Replacing minority labels with predefined label
 
     Args:
@@ -45,8 +50,10 @@ def replace_minority_labels(df: pd.DataFrame, label_col: str, min_freq: int,
     df[label_col] = df[label_col].fillna(new_label)
     return df
 
-def clean_text(text: str, lower: bool=True, stem: bool=False,
- stopwords: list[str]=config.STOPWORDS) -> str:
+
+def clean_text(
+    text: str, lower: bool = True, stem: bool = False, stopwords: list[str] = config.STOPWORDS
+) -> str:
     """Performing following text preprocessing process:
         - Transformation to lower case (if lower=True)
         - Stopwords removal (from stopwords argument)
@@ -69,8 +76,8 @@ def clean_text(text: str, lower: bool=True, stem: bool=False,
 
     # Remove stopwords
     if len(stopwords):
-        pattern = re.compile(r'\b(' + r"|".join(stopwords) + r")\b\s*")
-        text = pattern.sub('', text)
+        pattern = re.compile(r"\b(" + r"|".join(stopwords) + r")\b\s*")
+        text = pattern.sub("", text)
 
     # Spacing and filters
     text = re.sub(
@@ -89,7 +96,8 @@ def clean_text(text: str, lower: bool=True, stem: bool=False,
 
     return text
 
-def preprocess(df: pd.DataFrame, lower :bool, stem :bool, min_freq: int) -> pd.DataFrame:
+
+def preprocess(df: pd.DataFrame, lower: bool, stem: bool, min_freq: int) -> pd.DataFrame:
     """Preprocessing the data
 
     Args:
@@ -112,10 +120,11 @@ def preprocess(df: pd.DataFrame, lower :bool, stem :bool, min_freq: int) -> pd.D
 
     return df
 
+
 # Defining custom LabelEncoder
 class LabelEncoder(object):
-    """Defining a custom Label Encoder (based on sklearn's implementation)
-    """
+    """Defining a custom Label Encoder (based on sklearn's implementation)"""
+
     def __init__(self, class_to_index={}):
         self.class_to_index = class_to_index or {}  # mutable defaults ;)
         self.index_to_class = {v: k for k, v in self.class_to_index.items()}
@@ -158,9 +167,12 @@ class LabelEncoder(object):
             kwargs = json.load(fp=fp)
         return cls(**kwargs)
 
+
 from sklearn.model_selection import train_test_split
+
+
 # Creating a function to quickly define test/train/val splits
-def create_splits(X, y, train_size: float=0.7):
+def create_splits(X, y, train_size: float = 0.7):
     """This function automatically creates train, test and validation splits.
     Train split ratio is calculated from the train_size parameter.
     Test and validation split are then created from the remaining dataset
@@ -173,8 +185,6 @@ def create_splits(X, y, train_size: float=0.7):
     Returns:
         X_train, X_val, X_test, y_train, y_val, y_test.
     """
-    X_train, X_, y_train, y_ = train_test_split(
-      X, y, train_size=train_size, stratify=y)
-    X_val, X_test, y_val, y_test = train_test_split(
-      X_, y_, train_size=0.5, stratify=y_)
+    X_train, X_, y_train, y_ = train_test_split(X, y, train_size=train_size, stratify=y)
+    X_val, X_test, y_val, y_test = train_test_split(X_, y_, train_size=0.5, stratify=y_)
     return X_train, X_val, X_test, y_train, y_val, y_test

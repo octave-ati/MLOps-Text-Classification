@@ -1,5 +1,6 @@
 import numpy as np
 
+
 # Custom predict function
 def custom_predict(y_prob, threshold: dict, index: int) -> np.array:
     """Returns y_prob if the probability is higher than the class threshold.
@@ -13,8 +14,7 @@ def custom_predict(y_prob, threshold: dict, index: int) -> np.array:
     Returns:
         np.array: Custom predictions
     """
-    y_pred = [np.argmax(p) if max(p) > threshold[str(np.argmax(p))] else index for p in
-    y_prob]
+    y_pred = [np.argmax(p) if max(p) > threshold[str(np.argmax(p))] else index for p in y_prob]
     return np.array(y_pred)
 
 
@@ -39,7 +39,8 @@ def predict(texts: list[str], artifacts) -> list[dict]:
     y_pred = custom_predict(
         y_prob=artifacts["model"].predict_proba(x),
         threshold=artifacts["args"].threshold,
-        index=artifacts["label_encoder"].class_to_index["other"])
+        index=artifacts["label_encoder"].class_to_index["other"],
+    )
     tags = artifacts["label_encoder"].decode(y_pred)
     predictions = [
         {

@@ -1,7 +1,8 @@
-
 import json
-import numpy as np
 import random
+
+import numpy as np
+
 
 # Loading dictionary from JSON filepath
 def load_dict(filepath) -> dict:
@@ -17,8 +18,9 @@ def load_dict(filepath) -> dict:
         d = json.load(fp)
     return d
 
+
 # Saving dictionary to given location
-def save_dict(d: dict, filepath, cls=None, sortkeys: bool=False):
+def save_dict(d: dict, filepath, cls=None, sortkeys: bool = False):
     """Saving dictionary to json format
 
     Args:
@@ -32,7 +34,8 @@ def save_dict(d: dict, filepath, cls=None, sortkeys: bool=False):
     with open(filepath, "w") as fp:
         json.dump(d, indent=2, fp=fp, cls=cls, sort_keys=sortkeys)
 
-def set_seeds(seed: int=42):
+
+def set_seeds(seed: int = 42):
     """Sets numpy and random seeds.
 
     Args:

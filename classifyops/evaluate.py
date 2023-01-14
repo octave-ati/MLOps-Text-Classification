@@ -1,11 +1,11 @@
 import numpy as np
 import pandas as pd
 from sklearn.metrics import precision_recall_fscore_support
-from snorkel.slicing import PandasSFApplier
-from snorkel.slicing import slicing_function
+from snorkel.slicing import PandasSFApplier, slicing_function
+
 
 @slicing_function()
-def nlp_cnn(x) :
+def nlp_cnn(x):
     """Returns a slice containing projects with a NLP tag and convolution in their text
 
     Args:
@@ -16,7 +16,7 @@ def nlp_cnn(x) :
     """
     nlp_projects = "natural-language-processing" in x.tag
     convolution_projects = "CNN" in x.text or "convolution" in x.text
-    return (nlp_projects and convolution_projects)
+    return nlp_projects and convolution_projects
 
 
 @slicing_function()
@@ -61,7 +61,8 @@ def get_slice_metrics(y_true, y_pred, slices) -> dict:
             metrics[slice_name]["num_samples"] = len(y_true[mask])
     return metrics
 
-def get_metrics(y_true, y_pred, classes: list, df: pd.DataFrame=None) -> dict[dict]:
+
+def get_metrics(y_true, y_pred, classes: list, df: pd.DataFrame = None) -> dict[dict]:
     """Calculate overall and class metrics, returns slice metrics if required.
 
     Args:
@@ -100,7 +101,6 @@ def get_metrics(y_true, y_pred, classes: list, df: pd.DataFrame=None) -> dict[di
     # Slice metrics
     if df is not None:
         slices = PandasSFApplier([nlp_cnn, short_text]).apply(df)
-        metrics["slices"] = get_slice_metrics(
-            y_true=y_true, y_pred=y_pred, slices=slices)
+        metrics["slices"] = get_slice_metrics(y_true=y_true, y_pred=y_pred, slices=slices)
 
     return metrics

@@ -1,9 +1,10 @@
-from pathlib import Path
-import nltk
-from nltk.corpus import stopwords
-import mlflow
 import logging
 import sys
+from pathlib import Path
+
+import mlflow
+import nltk
+from nltk.corpus import stopwords
 from rich.logging import RichHandler
 
 # Directories
@@ -20,7 +21,9 @@ MODEL_DIR.mkdir(parents=True, exist_ok=True)
 LOGS_DIR.mkdir(parents=True, exist_ok=True)
 
 # Assets
-PROJECTS_URL = "https://raw.githubusercontent.com/Faskill/MLOps-Text-Classification/main/Data/projects.csv"
+PROJECTS_URL = (
+    "https://raw.githubusercontent.com/Faskill/MLOps-Text-Classification/main/Data/projects.csv"
+)
 TAGS_URL = "https://raw.githubusercontent.com/Faskill/MLOps-Text-Classification/main/Data/tags.csv"
 
 # Stopwords

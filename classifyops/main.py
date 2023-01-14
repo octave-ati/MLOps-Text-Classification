@@ -1,17 +1,19 @@
-import pandas as pd
-from pathlib import Path
-from argparse import Namespace
-import warnings
-from config.config import logger
 import json
-from config import config
-from classifyops import utils, data, train, predict
-import mlflow
-from numpyencoder import NumpyEncoder
-import optuna
-from optuna.integration.mlflow import MLflowCallback
-import joblib
 import tempfile
+import warnings
+from argparse import Namespace
+from pathlib import Path
+
+import joblib
+import mlflow
+import optuna
+import pandas as pd
+from numpyencoder import NumpyEncoder
+from optuna.integration.mlflow import MLflowCallback
+
+from classifyops import data, predict, train, utils
+from config import config
+from config.config import logger
 
 warnings.filterwarnings("ignore")
 
@@ -30,13 +32,14 @@ def elt_data():
     # Transform
 
     df = pd.merge(projects, tags, on="id", how="outer")
-    df = df[df.tag.notnull()] # Deleting rows without a tag
+    df = df[df.tag.notnull()]  # Deleting rows without a tag
     df.to_csv(Path(config.DATA_DIR, "labeled_projects.csv"), index=False)
 
     logger.info("✅ Data Saved")
 
+
 # Optimizing hyperparameters
-def optimize(args_fp: json, study_name:str, num_trials:int ):
+def optimize(args_fp: json, study_name: str, num_trials: int):
     """Runs a hyperparameter optimization algorithm
 
     Args:
@@ -55,15 +58,14 @@ def optimize(args_fp: json, study_name:str, num_trials:int ):
     study = optuna.create_study(study_name=study_name, direction="maximize", pruner=pruner)
 
     # Defining callback
-    mlflow_callback = MLflowCallback(
-        tracking_uri=mlflow.get_tracking_uri(), metric_name="f1")
-
+    mlflow_callback = MLflowCallback(tracking_uri=mlflow.get_tracking_uri(), metric_name="f1")
 
     # Performing study
     study.optimize(
         lambda trial: train.objective(args, df, trial),
         n_trials=num_trials,
-        callbacks=[mlflow_callback])
+        callbacks=[mlflow_callback],
+    )
 
     # Best trial
     trials_df = study.trials_dataframe()
@@ -74,7 +76,8 @@ def optimize(args_fp: json, study_name:str, num_trials:int ):
     print(f"\nBest value (f1): {study.best_trial.value}")
     print(f"Best hyperparameters: {json.dumps(study.best_trial.params, indent=2)}")
 
-def train_model(args_fp: json , experiment_name: str, run_name: str):
+
+def train_model(args_fp: json, experiment_name: str, run_name: str):
     """Trains the model (generally 100 epochs) and records experiment to MLflow
     The function also logs metrics and artifacts to mlflow for later retrieval
 
@@ -115,7 +118,8 @@ def train_model(args_fp: json , experiment_name: str, run_name: str):
     open(Path(config.CONFIG_DIR, "run_id.txt"), "w").write(run_id)
     utils.save_dict(performance, Path(config.CONFIG_DIR, "performance.json"))
 
-def load_artifacts(run_id: str, best: bool=True) -> dict:
+
+def load_artifacts(run_id: str, best: bool = True) -> dict:
     """Loads artifacts from a MLFlow experiment
 
     Args:
@@ -152,10 +156,11 @@ def load_artifacts(run_id: str, best: bool=True) -> dict:
         "label_encoder": label_encoder,
         "vectorizer": vectorizer,
         "model": model,
-        "performance": performance
+        "performance": performance,
     }
 
-def predict_tag(text: str, run_id: str=None, best: bool=True)-> list[dict]:
+
+def predict_tag(text: str, run_id: str = None, best: bool = True) -> list[dict]:
     """Predicts a tag with the retrieved artifacts
 
     Args:
