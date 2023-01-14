@@ -7,6 +7,7 @@ from pathlib import Path
 import joblib
 import mlflow
 import optuna
+import typer
 import pandas as pd
 from numpyencoder import NumpyEncoder
 from optuna.integration.mlflow import MLflowCallback
@@ -17,8 +18,12 @@ from config.config import logger
 
 warnings.filterwarnings("ignore")
 
+# Initializing App with typer
+app = typer.Typer()
+
 
 # This function will be called from the Python interpreter
+@app.command()
 def elt_data():
     """
     This function extracts the dataset from the github project
@@ -39,12 +44,17 @@ def elt_data():
     logger.info("✅ Data Saved")
 
 
-# Optimizing hyperparameters
-def optimize(args_fp: json, study_name: str, num_trials: int):
+# Optimizing
+@app.command()
+def optimize(
+    args_fp: str = "config/args.json",
+     study_name: str = "optimization",
+      num_trials: int = 20
+      ) -> None:
     """Runs a hyperparameter optimization algorithm
 
     Args:
-        args_fp (json): Base arguments to be used at initialization
+        args_fp (str): Path to the base arguments to be used at initialization
         study_name (str): Name of the MLflow study
         num_trials (int): Number of trials of the study
     """
@@ -77,13 +87,17 @@ def optimize(args_fp: json, study_name: str, num_trials: int):
     print(f"\nBest value (f1): {study.best_trial.value}")
     print(f"Best hyperparameters: {json.dumps(study.best_trial.params, indent=2)}")
 
-
-def train_model(args_fp: json, experiment_name: str, run_name: str):
+@app.command()
+def train_model(
+    args_fp: str= "config/args.json",
+    experiment_name: str = "baselines",
+    run_name: str = "sgd"
+    ) -> None:
     """Trains the model (generally 100 epochs) and records experiment to MLflow
     The function also logs metrics and artifacts to mlflow for later retrieval
 
     Args:
-        args_fp (json): Arguments to be used within the model training
+        args_fp (str): Location of the arguments to be used within the model training
         experiment_name (str): Name of the MLflow experiment
         run_name (str): Name of the MLflow training run
     """
@@ -160,8 +174,8 @@ def load_artifacts(run_id: str, best: bool = True) -> dict:
         "performance": performance,
     }
 
-
-def predict_tag(text: str, run_id: str = None, best: bool = True) -> list[dict]:
+@app.command()
+def predict_tag(text: str = "", run_id: str = None, best: bool = True) -> list[dict]:
     """Predicts a tag with the retrieved artifacts
 
     Args:
@@ -182,3 +196,7 @@ def predict_tag(text: str, run_id: str = None, best: bool = True) -> list[dict]:
     prediction = predict.predict(texts=[text], artifacts=artifacts)
     print(json.dumps(prediction, indent=2))
     return prediction
+
+
+if __name__ == "__main__":
+    app()
