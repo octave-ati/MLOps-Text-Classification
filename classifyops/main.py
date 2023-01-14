@@ -17,6 +17,7 @@ from config.config import logger
 
 warnings.filterwarnings("ignore")
 
+
 # This function will be called from the Python interpreter
 def elt_data():
     """

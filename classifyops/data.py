@@ -5,6 +5,7 @@ from collections import Counter
 import numpy as np
 import pandas as pd
 from nltk.stem import PorterStemmer
+from sklearn.model_selection import train_test_split
 
 from config import config
 
@@ -166,9 +167,6 @@ class LabelEncoder(object):
         with open(fp, "rb") as fp:
             kwargs = json.load(fp=fp)
         return cls(**kwargs)
-
-
-from sklearn.model_selection import train_test_split
 
 
 # Creating a function to quickly define test/train/val splits

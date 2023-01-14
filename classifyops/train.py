@@ -3,7 +3,6 @@ from pathlib import Path
 
 import joblib
 import mlflow
-import numpy as np
 import optuna
 import pandas as pd
 from imblearn.over_sampling import RandomOverSampler
