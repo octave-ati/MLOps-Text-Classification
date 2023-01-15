@@ -150,13 +150,13 @@ def load_artifacts(run_id: str, best: bool = True) -> dict:
                 model(model): Pickled Model
                 performance(dict): Performance metrics.
     """
-    # Locate specifics artifacts directory
-    experiment_id = mlflow.get_run(run_id=run_id).info.experiment_id
 
     # If best is True, we will recover artifacts stored in the root MODEL_DIR
     if best:
         artifacts_dir = Path(config.MODEL_DIR)
     else:
+        # Locate specific artifacts directory
+        experiment_id = mlflow.get_run(run_id=run_id).info.experiment_id
         artifacts_dir = Path(config.MODEL_DIR, experiment_id, run_id, "artifacts")
 
     # Load objects from run
