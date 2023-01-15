@@ -7,8 +7,8 @@ from pathlib import Path
 import joblib
 import mlflow
 import optuna
-import typer
 import pandas as pd
+import typer
 from numpyencoder import NumpyEncoder
 from optuna.integration.mlflow import MLflowCallback
 
@@ -47,10 +47,8 @@ def elt_data():
 # Optimizing
 @app.command()
 def optimize(
-    args_fp: str = "config/args.json",
-     study_name: str = "optimization",
-      num_trials: int = 20
-      ) -> None:
+    args_fp: str = "config/args.json", study_name: str = "optimization", num_trials: int = 20
+) -> None:
     """Runs a hyperparameter optimization algorithm
 
     Args:
@@ -87,12 +85,11 @@ def optimize(
     print(f"\nBest value (f1): {study.best_trial.value}")
     print(f"Best hyperparameters: {json.dumps(study.best_trial.params, indent=2)}")
 
+
 @app.command()
 def train_model(
-    args_fp: str= "config/args.json",
-    experiment_name: str = "baselines",
-    run_name: str = "sgd"
-    ) -> None:
+    args_fp: str = "config/args.json", experiment_name: str = "baselines", run_name: str = "sgd"
+) -> None:
     """Trains the model (generally 100 epochs) and records experiment to MLflow
     The function also logs metrics and artifacts to mlflow for later retrieval
 
@@ -173,6 +170,7 @@ def load_artifacts(run_id: str, best: bool = True) -> dict:
         "model": model,
         "performance": performance,
     }
+
 
 @app.command()
 def predict_tag(text: str = "", run_id: str = None, best: bool = True) -> list[dict]:

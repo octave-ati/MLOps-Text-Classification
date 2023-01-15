@@ -1,16 +1,14 @@
-from http import HTTPStatus
 from datetime import datetime
 from functools import wraps
+from http import HTTPStatus
+from pathlib import Path
 
 from fastapi import FastAPI, Request
 
-
-from pathlib import Path
+from app.schemas import PredictPayload
+from classifyops import main, predict
 from config import config
 from config.config import logger
-from classifyops import main, predict
-from app.schemas import PredictPayload
-
 
 # Define application
 app = FastAPI(
@@ -19,20 +17,37 @@ app = FastAPI(
     version="0.1",
 )
 
+
 @app.on_event("startup")
 def load_artifacts(run_id: bool = False) -> None:
+    """Load artifacts either from a run_id or from our best artifacts
+
+    Args:
+        run_id (bool, optional): If False, retrieves best artifacts.
+            If True, retrieves artifacts from the run_id in config/run_id.txt.
+            Defaults to False.
+    """
     global artifacts
     if run_id:
         # Retrieves artifacts from the run_id saved within the config folder
         run_id = open(Path(config.CONFIG_DIR, "run_id.txt")).read()
-        artifacts = artifacts = main.load_artifacts(run_id = run_id, best = False)
+        artifacts = artifacts = main.load_artifacts(run_id=run_id, best=False)
     else:
         # Retrieves artifacts from optimized model
-        artifacts = main.load_artifacts(run_id = "", best = True)
+        artifacts = main.load_artifacts(run_id="", best=True)
     logger.info("Ready for inference!")
 
+
 def construct_response(f):
-    """Construct a JSON response for an endpoint."""
+    """Wrapper function to Generate a complete response from API Endpoint
+        Adds the CRUD method, status-code, timestamp and request URL
+
+    Args:
+        f (function): Input function to be wrapped
+
+    Returns:
+        _type_: Wrapper function
+    """
 
     @wraps(f)
     def wrap(request: Request, *args, **kwargs) -> dict:
@@ -50,10 +65,18 @@ def construct_response(f):
 
     return wrap
 
+
 @app.get("/", tags=["General"])
 @construct_response
 def _index(request: Request) -> dict:
-    """Application health check."""
+    """Application health check
+
+    Args:
+        request (Request): Inbound request
+
+    Returns:
+        dict: Returns a standard everything is OK phrase and a OK HTTPStatus
+    """
     response = {
         "message": HTTPStatus.OK.phrase,
         "status-code": HTTPStatus.OK,
@@ -66,9 +89,20 @@ def _index(request: Request) -> dict:
 @app.get("/performance", tags=["Performance"])
 @construct_response
 def _performance(request: Request, filter: str = None) -> dict:
-    """Get the performance metrics."""
+    """Returns the performance metrics of the loaded model
+
+    Args:
+        request (Request): Inbound request
+        filter (str, optional): Filter to retrieve metrics for.
+            Can be one of : overall, class, slices
+            Defaults to None.
+
+    Returns:
+        dict: Performance either for all 3 types (overall, class and slices)
+            Or for the filtered type
+    """
     performance = artifacts["performance"]
-    data = {"performance":performance.get(filter, performance)}
+    data = {"performance": performance.get(filter, performance)}
     response = {
         "message": HTTPStatus.OK.phrase,
         "status-code": HTTPStatus.OK,
@@ -76,27 +110,23 @@ def _performance(request: Request, filter: str = None) -> dict:
     }
     return response
 
-# Retrieve given argument
-# Arguments must be in the following subset :
-# shuffle
-# subsetmin_freq
-# lower
-# staticmethodanalyzer
-# ngram_max_range
-# alpha
-# learning_rate
-# power_t
-# num_epochs
-# threshold {
-#     "0"
-#     "1"
-#     "2"
-#     "3"
-# }
+
 @app.get("/args/{arg}", tags=["Arguments"])
 @construct_response
 def _arg(request: Request, arg: str) -> dict:
-    """Get a specific parameter's value used for the run."""
+    """Retrieve requested argument from the loaded model
+
+    Args:
+        request (Request): Inbound request
+        arg (str): Argument to retrieve.
+            Must be in the following subset :
+            shuffle, min_freq, lower, analyzer
+            ngram_max_range, alpha, learning_rate
+            power_t, num_epochs, threshold
+
+    Returns:
+        dict: Value of the requested argument
+    """
     response = {
         "message": HTTPStatus.OK.phrase,
         "status-code": HTTPStatus.OK,
@@ -106,11 +136,19 @@ def _arg(request: Request, arg: str) -> dict:
     }
     return response
 
+
 # Retrieve all arguments
 @app.get("/args", tags=["Arguments"])
 @construct_response
 def _args(request: Request) -> dict:
-    """Get all arguments used for the run."""
+    """Returns all arguments used in the currently loaded model
+
+    Args:
+        request (Request): Inbound request
+
+    Returns:
+        dict: List of arguments, refer to the _arg function for the complete list
+    """
     response = {
         "message": HTTPStatus.OK.phrase,
         "status-code": HTTPStatus.OK,
@@ -120,10 +158,24 @@ def _args(request: Request) -> dict:
     }
     return response
 
+
 @app.post("/predict", tags=["Prediction"])
 @construct_response
-def _predict(request: Request, payload: PredictPayload) -> dict:
-    """Predict tags for a list of texts."""
+def _predict(request: Request, payload: PredictPayload) -> list[dict]:
+    """Predict the tags for a list of utterances
+
+    Args:
+        request (Request): Inbound request
+        payload (PredictPayload): Data for the request must be in the following format:
+            "texts": [
+            {"text": "Example test 1."},
+            {"text": "Example test 2."}
+        ]
+
+    Returns:
+        list[dict]: Prediction for each inbound text
+            Dict composed of input_text and predicted_tag
+    """
     texts = [item.text for item in payload.texts]
     predictions = predict.predict(texts=texts, artifacts=artifacts)
     response = {

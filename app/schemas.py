@@ -1,8 +1,10 @@
 from fastapi import Query
 from pydantic import BaseModel, validator
 
+
 class Text(BaseModel):
     text: str = Query(None, min_length=1)
+
 
 # Using BaseModel class to make use of built-in validation
 class PredictPayload(BaseModel):
