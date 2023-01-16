@@ -4,12 +4,13 @@ from collections import Counter
 
 import numpy as np
 import pandas as pd
-from nltk.stem import PorterStemmer
+import nltk
 from sklearn.model_selection import train_test_split
 
 from config import config
 
-stemmer = PorterStemmer()
+stemmer = nltk.stem.PorterStemmer()
+nltk.download("stopwords")
 
 
 def replace_oos_labels(
@@ -75,10 +76,13 @@ def clean_text(
     if lower:
         text = text.lower()
 
+    # If there are no stopwords, use nltk's default English stopwords
+    if not len(stopwords):
+        stopwords = nltk.corpus.stopwords.words("english")
+
     # Remove stopwords
-    if len(stopwords):
-        pattern = re.compile(r"\b(" + r"|".join(stopwords) + r")\b\s*")
-        text = pattern.sub("", text)
+    pattern = re.compile(r"\b(" + r"|".join(stopwords) + r")\b\s*")
+    text = pattern.sub("", text)
 
     # Spacing and filters
     text = re.sub(
@@ -98,17 +102,23 @@ def clean_text(
     return text
 
 
-def preprocess(df: pd.DataFrame, lower: bool, stem: bool, min_freq: int) -> pd.DataFrame:
+def preprocess(df: pd.DataFrame, lower: bool, stem: bool,
+        min_freq: int, labels: list=config.ACCEPTED_TAGS,
+        stopwords: list = config.STOPWORDS) -> pd.DataFrame:
     """Preprocessing the data
+    See clean_text, replace_oos_labels and replace_minority labels functions
+    for more detail.
 
     Args:
-        df (pd.DataFrame): _description_
-        lower (bool): _description_
-        stem (bool): _description_
-        min_freq (int): _description_
+        df (pd.DataFrame): Input dataframe
+        lower (bool): If True, turns text into lowercase
+        stem (bool): If True, stems text
+        min_freq (int): Minimum frequency of tags kept.
+        labels (list): List of accepted labels. Defaults to config.ACCEPTED_TAGS
+        stopwords (list[str]): List of stopwords. Defaults to []
 
     Returns:
-        pd.DataFrame: _description_
+        pd.DataFrame: Preprocessed dataframe
     """
     df["text"] = df.title + " " + df.description  # feature engineering
     df.text = df.text.apply(clean_text, lower=lower, stem=stem)  # clean text

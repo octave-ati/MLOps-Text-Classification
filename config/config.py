@@ -3,8 +3,6 @@ import sys
 from pathlib import Path
 
 import mlflow
-import nltk
-from nltk.corpus import stopwords
 from rich.logging import RichHandler
 
 # Directories
@@ -27,8 +25,7 @@ PROJECTS_URL = (
 TAGS_URL = "https://raw.githubusercontent.com/Faskill/MLOps-Text-Classification/main/Data/tags.csv"
 
 # Stopwords
-nltk.download("stopwords")
-STOPWORDS = stopwords.words("english")
+STOPWORDS = []
 
 # Tags
 ACCEPTED_TAGS = ["natural-language-processing", "computer-vision", "mlops", "graph-learning"]
