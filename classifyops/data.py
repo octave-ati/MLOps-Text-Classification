@@ -2,9 +2,9 @@ import json
 import re
 from collections import Counter
 
+import nltk
 import numpy as np
 import pandas as pd
-import nltk
 from sklearn.model_selection import train_test_split
 
 from config import config
@@ -102,9 +102,14 @@ def clean_text(
     return text
 
 
-def preprocess(df: pd.DataFrame, lower: bool, stem: bool,
-        min_freq: int, labels: list=config.ACCEPTED_TAGS,
-        stopwords: list = config.STOPWORDS) -> pd.DataFrame:
+def preprocess(
+    df: pd.DataFrame,
+    lower: bool,
+    stem: bool,
+    min_freq: int,
+    labels: list = config.ACCEPTED_TAGS,
+    stopwords: list = config.STOPWORDS,
+) -> pd.DataFrame:
     """Preprocessing the data
     See clean_text, replace_oos_labels and replace_minority labels functions
     for more detail.

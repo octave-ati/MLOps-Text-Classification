@@ -1,9 +1,12 @@
-from classifyops import data
-import numpy as np
 import tempfile
 from pathlib import Path
-import pytest
+
+import numpy as np
 import pandas as pd
+import pytest
+
+from classifyops import data
+
 
 @pytest.fixture(scope="module")
 def df():
@@ -22,6 +25,7 @@ def df():
     df = pd.DataFrame(data * 10)
     return df
 
+
 @pytest.mark.parametrize(
     "labels, unique_labels",
     [
@@ -31,32 +35,32 @@ def df():
         (["c0", "c1", "c2", "c3"], ["c0", "c1", "c2", "c3"]),  # complete overlap
     ],
 )
-
 def test_replace_oos_labels(df, labels, unique_labels):
     replaced_df = data.replace_oos_labels(
         df=df.copy(), labels=labels, label_col="tag", oos_label="other"
     )
     assert set(replaced_df.tag.unique()) == set(unique_labels)
 
+
 @pytest.mark.parametrize(
     "min_freq, unique_labels",
     [
-        (0, ["c0","c1","c2","c3"]),  # no minimum frequency
-        (-50, ["c0","c1","c2","c3"]),  # negative minimum frequency
-        (10, ["c0","c1","c2","c3"]), #Exact number of first label
-        (11, ["c1","c2","c3","other"]),  # One label removed
-        (21, ["c2","c3","other"]),  # 2 labels removed
-        (40, ["c3", "other"]), # Only one label kept
+        (0, ["c0", "c1", "c2", "c3"]),  # no minimum frequency
+        (-50, ["c0", "c1", "c2", "c3"]),  # negative minimum frequency
+        (10, ["c0", "c1", "c2", "c3"]),  # Exact number of first label
+        (11, ["c1", "c2", "c3", "other"]),  # One label removed
+        (21, ["c2", "c3", "other"]),  # 2 labels removed
+        (40, ["c3", "other"]),  # Only one label kept
         (41, ["other"]),  # no initial label kept
-        (5465465, ["other"]) # High number
+        (5465465, ["other"]),  # High number
     ],
 )
-
 def test_replace_minority_labels(df, min_freq, unique_labels):
     replaced_df = data.replace_minority_labels(
         df=df.copy(), label_col="tag", min_freq=min_freq, new_label="other"
     )
     assert set(replaced_df.tag.unique()) == set(unique_labels)
+
 
 @pytest.mark.parametrize(
     "text, lower, stem, stopwords, cleaned_text",
@@ -64,11 +68,15 @@ def test_replace_minority_labels(df, min_freq, unique_labels):
         ("Hello worlds", False, False, ["test"], "Hello worlds"),
         ("Hello worlds", True, False, ["test"], "hello worlds"),
         ("Hello Darkness my Old Friend", True, False, ["my"], "hello darkness old friend"),
-        ("It is important to be very pythonly while you are pythoning with python. All pythoners have pythoned poorly at least once.",
-        False, True, ["test"], "It is import to be veri pythonli while you are python with python All python have python poorli at least onc"),
-        ("My dad is a nice lil ol man", False, False, [], "My dad nice lil ol man")
+        (
+            "It is important to be very pythonly while you are pythoning with python. All pythoners have pythoned poorly at least once.",
+            False,
+            True,
+            ["test"],
+            "It is import to be veri pythonli while you are python with python All python have python poorli at least onc",
+        ),
+        ("My dad is a nice lil ol man", False, False, [], "My dad nice lil ol man"),
     ],
-
 )
 # An empty list of stopwords defaults to nltk's default stopwords by design
 def test_clean_text(text, lower, stem, stopwords, cleaned_text):
@@ -82,22 +90,23 @@ def test_clean_text(text, lower, stem, stopwords, cleaned_text):
         == cleaned_text
     )
 
+
 def test_preprocess():
     _df = pd.DataFrame({"title": "thats ", "description": "life", "tag": "c0"}, index=[0])
     assert (
         data.preprocess(
             df=_df,
-            lower=False, # Tested in test_clean_text
-            stem=False, # Tested in test_clean_text
-            min_freq=0, # Tested in test_replace_minority_labels
-            labels=["c0"], # Tested in test_replace_oos_labels
-            stopwords=["dozakpdzadalsq"], #Empty stopwords defaults to nltk EN stopwords
-        )["text"][0] == "thats life"
+            lower=False,  # Tested in test_clean_text
+            stem=False,  # Tested in test_clean_text
+            min_freq=0,  # Tested in test_replace_minority_labels
+            labels=["c0"],  # Tested in test_replace_oos_labels
+            stopwords=["dozakpdzadalsq"],  # Empty stopwords defaults to nltk EN stopwords
+        )["text"][0]
+        == "thats life"
     )
 
 
 class TestLabelEncoder:
-
     @classmethod
     def setup_class(cls):
         """Called before class initialization."""
@@ -157,15 +166,16 @@ class TestLabelEncoder:
         assert np.array_equal(label_encoder.encode(y_decoded), np.array(y_encoded))
         assert label_encoder.decode(y_encoded) == y_decoded
 
+
 @pytest.mark.parametrize(
     "X, y, train_size, train_count, val_count",
     [
-       (np.zeros(20), np.zeros(20), 0.5, 10, 5),
-       (np.zeros(100), np.zeros(100), 0.8, 80, 10),
-       (np.zeros(5), np.zeros(5), 1, 1, 2),
+        (np.zeros(20), np.zeros(20), 0.5, 10, 5),
+        (np.zeros(100), np.zeros(100), 0.8, 80, 10),
+        (np.zeros(5), np.zeros(5), 1, 1, 2),
     ],
 )
 def test_create_split(X, y, train_size, train_count, val_count):
-    X_train, X_val, X_test, y_train, y_val, y_test = data.create_splits(X,y,train_size=train_size)
-    assert(len(X_train) == len(y_train) == train_count)
-    assert(len(X_val) == len(y_val) == len(X_test) == len(y_test) == val_count)
+    X_train, X_val, X_test, y_train, y_val, y_test = data.create_splits(X, y, train_size=train_size)
+    assert len(X_train) == len(y_train) == train_count
+    assert len(X_val) == len(y_val) == len(X_test) == len(y_test) == val_count

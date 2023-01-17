@@ -131,7 +131,7 @@ def train_model(
     utils.save_dict(performance, Path(config.CONFIG_DIR, "performance.json"))
 
 
-def load_artifacts(run_id: str, best: bool = True) -> dict:
+def load_artifacts(run_id: str = "", best: bool = True) -> dict:
     """Loads artifacts from a MLFlow experiment
 
     Args:

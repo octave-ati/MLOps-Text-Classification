@@ -32,13 +32,14 @@ def short_text(x):
     return len(x.text.split()) < 8  # less than 8 words
 
 
-def get_slice_metrics(y_true, y_pred, slices) -> dict:
+def get_slice_metrics(y_true, y_pred, slices, average: str = "micro") -> dict:
     """Calculate metrics for each slices
 
     Args:
         y_true (pd.df or np.array): True values
         y_pred (pd.df or np.array): Predicted values
         slices (List[pd.DataFrame or np.array]): List of slices
+        average (str): Average used within the precision_recall_fscore function
 
     Returns:
         dict: Return slice metrics including :
@@ -52,7 +53,7 @@ def get_slice_metrics(y_true, y_pred, slices) -> dict:
         mask = slices[slice_name].astype(bool)
         if sum(mask):
             slice_metrics = precision_recall_fscore_support(
-                y_true[mask], y_pred[mask], average="micro"
+                y_true[mask], y_pred[mask], average=average
             )
             metrics[slice_name] = {}
             metrics[slice_name]["precision"] = slice_metrics[0]

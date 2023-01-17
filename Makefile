@@ -13,6 +13,7 @@ style:
 	black .
 	flake8
 	python3 -m isort .
+	python3 -m mkdocs gh-deploy # Update documentation
 
 .PHONY: clean
 clean: style

@@ -23,10 +23,11 @@ setup(
     author_email="octave.antoni@gmail.com",
     url="https://github.com/Faskill/MLOps-Text-Classification",
     python_requires=">=3.9",
+    py_modules=[],
     install_requires=[required_packages],
     extras_require={
         "dev": docs_packages + style_packages + test_packages,
         "docs": docs_packages,
-        "test": test_packages
+        "test": test_packages,
     },
 )

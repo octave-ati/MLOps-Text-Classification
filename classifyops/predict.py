@@ -8,7 +8,7 @@ def custom_predict(y_prob, threshold: dict, index: int) -> np.array:
     Args:
         y_prob (np.array): Prediction probabilities
         threshold (dict): Class thresholds. If the probability is above the threshold,
-        The class will be predicted, otherwise the index argument will be return.
+            The class will be predicted, otherwise the index argument will be returned.
         index (int): Index of the "other" class.
 
     Returns:
