@@ -126,7 +126,7 @@ def train(args: dict, df: pd.DataFrame, trial: optuna.trial.Trial = None) -> dic
     other_index = label_encoder.class_to_index["other"]
     y_prob = model.predict_proba(X_test)
     y_pred = predict.custom_predict(
-        y_prob=y_prob, class_thresholds=args.threshold, index=other_index
+        y_prob=y_prob, threshold=args.threshold, index=other_index
     )
     performance = evaluate.get_metrics(
         y_true=y_test, y_pred=y_pred, classes=label_encoder.classes, df=test_df

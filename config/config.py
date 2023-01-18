@@ -12,11 +12,13 @@ DATA_DIR = Path(BASE_DIR, "data")
 MODEL_DIR = Path(BASE_DIR, "model")
 STORES_DIR = Path(BASE_DIR, "stores")
 LOGS_DIR = Path(BASE_DIR, "logs")
+TEST_DIR = Path(BASE_DIR, "tests")
 
 # Create dirs
 DATA_DIR.mkdir(parents=True, exist_ok=True)
 MODEL_DIR.mkdir(parents=True, exist_ok=True)
 LOGS_DIR.mkdir(parents=True, exist_ok=True)
+TEST_DIR.mkdir(parents=True, exist_ok=True)
 
 # Assets
 PROJECTS_URL = (

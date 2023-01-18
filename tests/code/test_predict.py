@@ -54,10 +54,32 @@ def test_custom_predict(y_prob, y_pred, threshold, index):
     pred = predict.custom_predict(y_prob, threshold, index)
     np.testing.assert_array_equal(y_pred, pred)
 
-
-def test_predict():
-    pred = predict.predict(["test"] * 10, main.load_artifacts())
+@pytest.mark.parametrize(
+    "texts, target_pred",
+    # Baseline predictions
+    [
+        (
+            ['mlops is very important in project design to optimize production'],
+            ['mlops']
+        ),
+        (
+            ['This is a clear text classification project'] * 5,
+            ['natural-language-processing'] * 5
+        ),
+        (
+            ['During this project we will develop image classification models'] * 99,
+            ['computer-vision'] * 99
+        ),
+        (
+            ['no clear category for that project'] * 10,
+            ['other'] * 10
+        ),
+    ],
+)
+def test_predict(texts, target_pred):
+    pred = predict.predict(texts, main.load_artifacts())
     pred_df = pd.DataFrame(pred)  # Fails if columns names inconsistent
-    assert len(pred) == 10  # One prediction per input
+    assert len(pred) == len(texts) # One prediction per input
     # Good column names
     np.testing.assert_array_equal(pred_df.columns, ["input_text", "predicted_tags"])
+    np.testing.assert_array_equal(pred_df['predicted_tags'],target_pred)

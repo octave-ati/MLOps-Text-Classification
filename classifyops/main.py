@@ -24,22 +24,24 @@ app = typer.Typer()
 
 # This function will be called from the Python interpreter
 @app.command()
-def elt_data():
+def elt_data(dir: Path=config.DATA_DIR):
     """
     This function extracts the dataset from the github project
     It then transfers it to a local file
+        Args:
+        dir (Path): directory where the csv will be saved. Defaults to /data
     """
     # Extract and Load
     projects = pd.read_csv(config.PROJECTS_URL)
     tags = pd.read_csv(config.TAGS_URL)
-    projects.to_csv(Path(config.DATA_DIR, "projects.csv"), index=False)
-    tags.to_csv(Path(config.DATA_DIR, "tags.csv"), index=False)
+    projects.to_csv(Path(dir, "projects.csv"), index=False)
+    tags.to_csv(Path(dir, "tags.csv"), index=False)
 
     # Transform
 
     df = pd.merge(projects, tags, on="id", how="outer")
     df = df[df.tag.notnull()]  # Deleting rows without a tag
-    df.to_csv(Path(config.DATA_DIR, "labeled_projects.csv"), index=False)
+    df.to_csv(Path(dir, "labeled_projects.csv"), index=False)
 
     logger.info("✅ Data Saved")
 
