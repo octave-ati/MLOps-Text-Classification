@@ -117,7 +117,7 @@ def train(args: dict, df: pd.DataFrame, trial: optuna.trial.Trial = None) -> dic
             mlflow.log_metrics({"train_loss": train_loss, "val_loss": val_loss}, step=epoch)
 
         # Pruning ==> this part is implemented in the hyperparameter optimization part
-        if trial:
+        if trial: # pragma: no cover, optuna pruning
             trial.report(val_loss, epoch)
             if trial.should_prune():
                 raise optuna.TrialPruned()
@@ -144,7 +144,7 @@ def train(args: dict, df: pd.DataFrame, trial: optuna.trial.Trial = None) -> dic
 #
 # Defining our optimization objective
 def objective(args: dict, df: pd.DataFrame, trial: optuna.trial.Trial,
-    test_run: bool=False) -> float:
+    test_run: str="false") -> float:
     """Objective defined to perform hyperparameter optimization using the optuna package.
       Target metric : f1 score
       Arguments to tune :
@@ -188,18 +188,19 @@ def objective(args: dict, df: pd.DataFrame, trial: optuna.trial.Trial,
     trial.set_user_attr("recall", overall_performance["recall"])
     trial.set_user_attr("f1", overall_performance["f1"])
 
-    # Saving artifacts
-    if overall_performance["f1"] > best_f1:
-        best_f1 = overall_performance["f1"]
+    if not test_run=="true":
+        # Saving artifacts
+        if overall_performance["f1"] > best_f1:
+            best_f1 = overall_performance["f1"]
 
-        print(f"New best performance : {best_f1}")
-        print("Saving model data")
+            print(f"New best performance : {best_f1}")
+            print("Saving model data")
 
-        artifacts["label_encoder"].save(Path(config.MODEL_DIR, "label_encoder.json"))
-        with open(Path(config.MODEL_DIR, "vectorizer.pkl"), "wb") as file:
-            joblib.dump(artifacts["vectorizer"], file)
-        with open(Path(config.MODEL_DIR, "model.pkl"), "wb") as file:
-            joblib.dump(artifacts["model"], file)
-        utils.save_dict(artifacts["performance"], Path(config.MODEL_DIR, "performance.json"))
+            artifacts["label_encoder"].save(Path(config.MODEL_DIR, "label_encoder.json"))
+            with open(Path(config.MODEL_DIR, "vectorizer.pkl"), "wb") as file:
+                joblib.dump(artifacts["vectorizer"], file)
+            with open(Path(config.MODEL_DIR, "model.pkl"), "wb") as file:
+                joblib.dump(artifacts["model"], file)
+            utils.save_dict(artifacts["performance"], Path(config.MODEL_DIR, "performance.json"))
 
     return overall_performance["f1"]

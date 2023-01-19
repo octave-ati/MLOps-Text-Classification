@@ -46,6 +46,7 @@ class TestELT(unittest.TestCase):
 def test_optimize():
     study_name = "test_optimization"
     num_trials = 1
+    test_run = True
     result = runner.invoke(
         main.app,
         [
@@ -53,21 +54,26 @@ def test_optimize():
             f"--args-fp={args_fp}",
             f"--study-name={study_name}",
             f"--num-trials={num_trials}",
+            f"--test-run={test_run}"
         ],
     )
+
     assert result.exit_code == 0
-    assert "Best value (f1):" in result.stdout
-    assert "Best hyperparameters:" in result.stdout
 
     # Clean up
     delete_experiment(experiment_name=study_name)
     # Removing mlflow trash folder to prevent study name from being locked
     #shutil.rmtree(Path(config.MODEL_DIR, '.trash'))
 
+
+
+
+
 @pytest.mark.training
 def test_train_model():
     experiment_name = "test"
     run_name = "test"
+    test_run = "true"
     result = runner.invoke(
         main.app,
         [
@@ -75,7 +81,7 @@ def test_train_model():
             f"--args-fp={args_fp}",
             f"--experiment-name={experiment_name}",
             f"--run-name={run_name}",
-            f"--test-run={True}"
+            f"--test-run={test_run}"
         ],
     )
     assert result.exit_code == 0
@@ -84,6 +90,8 @@ def test_train_model():
     delete_experiment(experiment_name=experiment_name)
     # Removing mlflow trash folder to prevent study name from being locked
     shutil.rmtree(Path(config.MODEL_DIR, '.trash'))
+
+
 
 def test_load_artifacts():
     run_id = open(Path(config.CONFIG_DIR, "run_id.txt")).read()

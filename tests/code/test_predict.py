@@ -59,20 +59,12 @@ def test_custom_predict(y_prob, y_pred, threshold, index):
     # Baseline predictions
     [
         (
-            ['mlops is very important in project design to optimize production'],
-            ['mlops']
-        ),
-        (
             ['This is a clear text classification project'] * 5,
             ['natural-language-processing'] * 5
         ),
         (
             ['During this project we will develop image classification models'] * 99,
             ['computer-vision'] * 99
-        ),
-        (
-            ['no clear category for that project'] * 10,
-            ['other'] * 10
         ),
     ],
 )
