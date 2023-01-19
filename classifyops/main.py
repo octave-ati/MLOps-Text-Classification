@@ -83,7 +83,7 @@ def optimize(
     trials_df = study.trials_dataframe()
     trials_df = trials_df.sort_values(["user_attrs_f1"], ascending=False)
 
-    if not test_run: # pragma: no cover, Prevent argument saving during tests
+    if not test_run == "true": # pragma: no cover, Prevent argument saving during tests
         # Saving best parameters
         utils.save_dict({**args.__dict__, **study.best_trial.params}, args_fp, cls=NumpyEncoder)
         print(f"\nBest value (f1): {study.best_trial.value}")
@@ -131,8 +131,8 @@ def train_model(
             utils.save_dict(performance, Path(dp, "performance.json"))
             mlflow.log_artifacts(dp)
 
-    # Save to config # pragma: no cover, Prevent argument saving during tests
-    if not test_run=="true":
+    # Save to config
+    if not test_run=="true": # pragma: no cover, Prevent argument saving during tests
         open(Path(config.CONFIG_DIR, "run_id.txt"), "w").write(run_id)
         utils.save_dict(performance, Path(config.CONFIG_DIR, "performance.json"))
 
