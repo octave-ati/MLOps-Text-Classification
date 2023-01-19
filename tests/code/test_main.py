@@ -2,6 +2,7 @@ from pathlib import Path
 from classifyops import main
 from config import config
 import os
+import shutil
 import unittest
 from typer.testing import CliRunner
 import mlflow
@@ -60,7 +61,39 @@ def test_optimize():
 
     # Clean up
     delete_experiment(experiment_name=study_name)
+    # Removing mlflow trash folder to prevent study name from being locked
+    #shutil.rmtree(Path(config.MODEL_DIR, '.trash'))
+
+@pytest.mark.training
+def test_train_model():
+    experiment_name = "test"
+    run_name = "test"
+    result = runner.invoke(
+        main.app,
+        [
+            "train-model",
+            f"--args-fp={args_fp}",
+            f"--experiment-name={experiment_name}",
+            f"--run-name={run_name}",
+            f"--test-run={True}"
+        ],
+    )
+    assert result.exit_code == 0
+
+    # Clean up
+    delete_experiment(experiment_name=experiment_name)
+    # Removing mlflow trash folder to prevent study name from being locked
+    shutil.rmtree(Path(config.MODEL_DIR, '.trash'))
+
+def test_load_artifacts():
+    run_id = open(Path(config.CONFIG_DIR, "run_id.txt")).read()
+    artifacts = main.load_artifacts(run_id=run_id)
+    assert len(artifacts)==5
 
 
+def test_predict_tag():
+    text = "This project is clearly a text classification nlp project"
+    result = runner.invoke(main.app, ["predict-tag", f"--text={text}"])
+    assert result.exit_code == 0
 
 

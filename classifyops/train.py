@@ -143,7 +143,8 @@ def train(args: dict, df: pd.DataFrame, trial: optuna.trial.Trial = None) -> dic
 
 #
 # Defining our optimization objective
-def objective(args: dict, df: pd.DataFrame, trial: optuna.trial.Trial) -> float:
+def objective(args: dict, df: pd.DataFrame, trial: optuna.trial.Trial,
+    test_run: bool=False) -> float:
     """Objective defined to perform hyperparameter optimization using the optuna package.
       Target metric : f1 score
       Arguments to tune :
@@ -160,6 +161,7 @@ def objective(args: dict, df: pd.DataFrame, trial: optuna.trial.Trial) -> float:
         args (dict): See argument format in train function above
         df (pd.DataFrame): Input dataframe
         trial (optuna.trial.Trial): Optuna trial
+        test_run (bool): Set to True only during testing. Defaults to False.
 
     Returns:
         float: F1 score of the optimization step

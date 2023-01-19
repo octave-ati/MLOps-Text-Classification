@@ -49,14 +49,15 @@ def elt_data(dir: Path=config.DATA_DIR):
 # Optimizing
 @app.command()
 def optimize(
-    args_fp: str = "config/args.json", study_name: str = "optimization", num_trials: int = 20
-) -> None:
+    args_fp: str = "config/args.json", study_name: str = "optimization",
+    num_trials: int = 20, test_run: bool=False) -> None:
     """Runs a hyperparameter optimization algorithm
 
     Args:
         args_fp (str): Path to the base arguments to be used at initialization
         study_name (str): Name of the MLflow study
         num_trials (int): Number of trials of the study
+        test_run (bool): Set to True only during testing. Defaults to False.
     """
     # Loading labeled data
     df = pd.read_csv(Path(config.DATA_DIR, "labeled_projects.csv"))
@@ -73,7 +74,7 @@ def optimize(
 
     # Performing study
     study.optimize(
-        lambda trial: train.objective(args, df, trial),
+        lambda trial: train.objective(args, df, trial, test_run=test_run),
         n_trials=num_trials,
         callbacks=[mlflow_callback],
     )
@@ -82,16 +83,17 @@ def optimize(
     trials_df = study.trials_dataframe()
     trials_df = trials_df.sort_values(["user_attrs_f1"], ascending=False)
 
-    # Saving best parameters
-    utils.save_dict({**args.__dict__, **study.best_trial.params}, args_fp, cls=NumpyEncoder)
-    print(f"\nBest value (f1): {study.best_trial.value}")
-    print(f"Best hyperparameters: {json.dumps(study.best_trial.params, indent=2)}")
+    if not test_run:
+        # Saving best parameters
+        utils.save_dict({**args.__dict__, **study.best_trial.params}, args_fp, cls=NumpyEncoder)
+        print(f"\nBest value (f1): {study.best_trial.value}")
+        print(f"Best hyperparameters: {json.dumps(study.best_trial.params, indent=2)}")
 
 
 @app.command()
 def train_model(
-    args_fp: str = "config/args.json", experiment_name: str = "baselines", run_name: str = "sgd"
-) -> None:
+    args_fp: str = "config/args.json", experiment_name: str = "baselines",
+    run_name: str = "sgd", test_run: bool=False) -> None:
     """Trains the model (generally 100 epochs) and records experiment to MLflow
     The function also logs metrics and artifacts to mlflow for later retrieval
 
@@ -99,6 +101,7 @@ def train_model(
         args_fp (str): Location of the arguments to be used within the model training
         experiment_name (str): Name of the MLflow experiment
         run_name (str): Name of the MLflow training run
+        test_run (bool): Set to True only during testing. Defaults to False.
     """
     # Loading labeled data
     df = pd.read_csv(Path(config.DATA_DIR, "labeled_projects.csv"))
@@ -129,8 +132,9 @@ def train_model(
             mlflow.log_artifacts(dp)
 
     # Save to config
-    open(Path(config.CONFIG_DIR, "run_id.txt"), "w").write(run_id)
-    utils.save_dict(performance, Path(config.CONFIG_DIR, "performance.json"))
+    if not test_run:
+        open(Path(config.CONFIG_DIR, "run_id.txt"), "w").write(run_id)
+        utils.save_dict(performance, Path(config.CONFIG_DIR, "performance.json"))
 
 
 def load_artifacts(run_id: str = "", best: bool = True) -> dict:
