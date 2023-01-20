@@ -4,6 +4,7 @@ from pathlib import Path
 import joblib
 import mlflow
 import optuna
+import numpy as np
 import pandas as pd
 from imblearn.over_sampling import RandomOverSampler
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -16,8 +17,9 @@ from config import config
 # Defining our training function, encapsulating all of the components developed prior
 min_freq = 75
 
-# Initializing a variable for best f1 value
-best_f1 = 0
+# Initializing a variable for best metric value
+best_metric = 0
+best_loss = np.inf
 
 
 def train(args: dict, df: pd.DataFrame, trial: optuna.trial.Trial = None) -> dict:
@@ -131,7 +133,7 @@ def train(args: dict, df: pd.DataFrame, trial: optuna.trial.Trial = None) -> dic
     performance = evaluate.get_metrics(
         y_true=y_test, y_pred=y_pred, classes=label_encoder.classes, df=test_df
     )
-
+    performance["overall"]["loss"] = log_loss(y_test, model.predict_proba(X_test))
     return {
         "args": args,
         "label_encoder": label_encoder,
@@ -144,9 +146,9 @@ def train(args: dict, df: pd.DataFrame, trial: optuna.trial.Trial = None) -> dic
 #
 # Defining our optimization objective
 def objective(args: dict, df: pd.DataFrame, trial: optuna.trial.Trial,
-    test_run: str="false") -> float:
+    test_run: str="false", direction: str="maximize", metric: str="f1") -> float:
     """Objective defined to perform hyperparameter optimization using the optuna package.
-      Target metric : f1 score
+      Target metric : Defaults to f1 score. See metric argument
       Arguments to tune :
         - Character analyzer (analyzer)
         - Ngram_max_range : Defines the number of ngrams of the vectorizer
@@ -154,7 +156,7 @@ def objective(args: dict, df: pd.DataFrame, trial: optuna.trial.Trial,
         - Power_t : The exponent for inverse scaling learning rate
         - Class thresholds for classes 0, 1 and 2 (class 3 is our "other" class)
 
-      At the end of each step, if the model has the best f1 score :
+      At the end of each step, if the model has the best metric :
       Saves the model to the root MODEL_DIR directory
 
     Args:
@@ -162,11 +164,13 @@ def objective(args: dict, df: pd.DataFrame, trial: optuna.trial.Trial,
         df (pd.DataFrame): Input dataframe
         trial (optuna.trial.Trial): Optuna trial
         test_run (bool): Set to True only during testing. Defaults to False.
+        direction (str): Direction to optimize metric. Defaults to maximize
+        metric (str): Metric to optimize. Defaults to f1.
 
     Returns:
-        float: F1 score of the optimization step
+        float: Best metric
     """
-    global best_f1
+    global best_metric, best_loss
     # Parameters to tune
     args.analyzer = trial.suggest_categorical("analyzer", ["word", "char", "char_wb"])
     args.ngram_max_range = trial.suggest_int("ngram_max_range", 3, 10)
@@ -187,20 +191,36 @@ def objective(args: dict, df: pd.DataFrame, trial: optuna.trial.Trial,
     trial.set_user_attr("precision", overall_performance["precision"])
     trial.set_user_attr("recall", overall_performance["recall"])
     trial.set_user_attr("f1", overall_performance["f1"])
-
     if not test_run=="true":
+        # If we maximize the variable, we take our best_metric variable (starting as 0)
+        # As reference
+        if direction=="maximize":
         # Saving artifacts
-        if overall_performance["f1"] > best_f1:
-            best_f1 = overall_performance["f1"]
+            if overall_performance[metric] > best_metric:
+                best_metric = overall_performance[metric]
 
-            print(f"New best performance : {best_f1}")
-            print("Saving model data")
+                print(f"New best performance : {metric} : {best_metric}")
+                print("Saving model data")
 
-            artifacts["label_encoder"].save(Path(config.MODEL_DIR, "label_encoder.json"))
-            with open(Path(config.MODEL_DIR, "vectorizer.pkl"), "wb") as file:
-                joblib.dump(artifacts["vectorizer"], file)
-            with open(Path(config.MODEL_DIR, "model.pkl"), "wb") as file:
-                joblib.dump(artifacts["model"], file)
-            utils.save_dict(artifacts["performance"], Path(config.MODEL_DIR, "performance.json"))
+                artifacts["label_encoder"].save(Path(config.MODEL_DIR, "label_encoder.json"))
+                with open(Path(config.MODEL_DIR, "vectorizer.pkl"), "wb") as file:
+                    joblib.dump(artifacts["vectorizer"], file)
+                with open(Path(config.MODEL_DIR, "model.pkl"), "wb") as file:
+                    joblib.dump(artifacts["model"], file)
+                utils.save_dict(artifacts["performance"], Path(config.MODEL_DIR, "performance.json"))
+        else: # Taking our best loss variable as reference (starting at inf)
+            # Saving artifacts
+            if overall_performance[metric] < best_loss:
+                best_loss = overall_performance[metric]
 
-    return overall_performance["f1"]
+                print(f"New best performance : {metric} : {best_loss}")
+                print("Saving model data")
+
+                artifacts["label_encoder"].save(Path(config.MODEL_DIR, "label_encoder.json"))
+                with open(Path(config.MODEL_DIR, "vectorizer.pkl"), "wb") as file:
+                    joblib.dump(artifacts["vectorizer"], file)
+                with open(Path(config.MODEL_DIR, "model.pkl"), "wb") as file:
+                    joblib.dump(artifacts["model"], file)
+                utils.save_dict(artifacts["performance"], Path(config.MODEL_DIR, "performance.json"))
+
+    return overall_performance[metric]

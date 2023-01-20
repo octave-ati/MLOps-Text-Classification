@@ -50,7 +50,8 @@ def elt_data(dir: Path=config.DATA_DIR):
 @app.command()
 def optimize(
     args_fp: str = "config/args.json", study_name: str = "optimization",
-    num_trials: int = 20, test_run: str="false") -> None:
+    num_trials: int = 20, test_run: str="false",
+    direction: str = "maximize", metric: str = "f1") -> None:
     """Runs a hyperparameter optimization algorithm
 
     Args:
@@ -58,6 +59,8 @@ def optimize(
         study_name (str): Name of the MLflow study
         num_trials (int): Number of trials of the study
         test_run (bool): Set to True only during testing. Defaults to False.
+        direction (str): Direction to optimize metric. Defaults to maximize.
+        metric (str): Key metric to optimize. Defaults to f1 score.
     """
     # Loading labeled data
     df = pd.read_csv(Path(config.DATA_DIR, "labeled_projects.csv"))
@@ -67,14 +70,15 @@ def optimize(
     pruner = optuna.pruners.MedianPruner(n_startup_trials=5, n_warmup_steps=5)
 
     # Creating study
-    study = optuna.create_study(study_name=study_name, direction="maximize", pruner=pruner)
+    study = optuna.create_study(study_name=study_name, direction=direction, pruner=pruner)
 
     # Defining callback
-    mlflow_callback = MLflowCallback(tracking_uri=mlflow.get_tracking_uri(), metric_name="f1")
+    mlflow_callback = MLflowCallback(tracking_uri=mlflow.get_tracking_uri(), metric_name=metric)
 
     # Performing study
     study.optimize(
-        lambda trial: train.objective(args, df, trial, test_run=test_run),
+        lambda trial: train.objective(args, df, trial, test_run=test_run,
+            metric=metric, direction=direction),
         n_trials=num_trials,
         callbacks=[mlflow_callback],
     )
@@ -86,7 +90,7 @@ def optimize(
     if not test_run == "true": # pragma: no cover, Prevent argument saving during tests
         # Saving best parameters
         utils.save_dict({**args.__dict__, **study.best_trial.params}, args_fp, cls=NumpyEncoder)
-        print(f"\nBest value (f1): {study.best_trial.value}")
+        print(f"\nBest value ({metric}): {study.best_trial.value}")
         print(f"Best hyperparameters: {json.dumps(study.best_trial.params, indent=2)}")
 
 
