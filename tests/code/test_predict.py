@@ -54,26 +54,24 @@ def test_custom_predict(y_prob, y_pred, threshold, index):
     pred = predict.custom_predict(y_prob, threshold, index)
     np.testing.assert_array_equal(y_pred, pred)
 
+
 @pytest.mark.parametrize(
     "texts, target_pred",
     # Baseline predictions
     [
+        (["This is a clear text classification project"] * 5, ["natural-language-processing"] * 5),
         (
-            ['This is a clear text classification project'] * 5,
-            ['natural-language-processing'] * 5
-        ),
-        (
-            ['During this project we will develop image classification models'] * 99,
-            ['computer-vision'] * 99
+            ["During this project we will develop image classification models"] * 99,
+            ["computer-vision"] * 99,
         ),
     ],
 )
 def test_predict(texts, target_pred):
     pred = predict.predict(texts, main.load_artifacts())
     pred_df = pd.DataFrame(pred)  # Fails if columns names inconsistent
-    assert len(pred) == len(texts) # One prediction per input
+    assert len(pred) == len(texts)  # One prediction per input
     # Good column names
     np.testing.assert_array_equal(pred_df.columns, ["input_text", "predicted_tags"])
 
     # Behavioral testing implemented in tests/model/test_behavioral.py
-    #np.testing.assert_array_equal(pred_df['predicted_tags'],target_pred)
+    # np.testing.assert_array_equal(pred_df['predicted_tags'],target_pred)

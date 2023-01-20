@@ -24,7 +24,7 @@ app = typer.Typer()
 
 # This function will be called from the Python interpreter
 @app.command()
-def elt_data(dir: Path=config.DATA_DIR):
+def elt_data(dir: Path = config.DATA_DIR):
     """
     This function extracts the dataset from the github project
     It then transfers it to a local file
@@ -49,9 +49,13 @@ def elt_data(dir: Path=config.DATA_DIR):
 # Optimizing
 @app.command()
 def optimize(
-    args_fp: str = "config/args.json", study_name: str = "optimization",
-    num_trials: int = 20, test_run: str="false",
-    direction: str = "maximize", metric: str = "f1") -> None:
+    args_fp: str = "config/args.json",
+    study_name: str = "optimization",
+    num_trials: int = 20,
+    test_run: str = "false",
+    direction: str = "maximize",
+    metric: str = "f1",
+) -> None:
     """Runs a hyperparameter optimization algorithm
 
     Args:
@@ -77,8 +81,9 @@ def optimize(
 
     # Performing study
     study.optimize(
-        lambda trial: train.objective(args, df, trial, test_run=test_run,
-            metric=metric, direction=direction),
+        lambda trial: train.objective(
+            args, df, trial, test_run=test_run, metric=metric, direction=direction
+        ),
         n_trials=num_trials,
         callbacks=[mlflow_callback],
     )
@@ -87,7 +92,7 @@ def optimize(
     trials_df = study.trials_dataframe()
     trials_df = trials_df.sort_values(["user_attrs_f1"], ascending=False)
 
-    if not test_run == "true": # pragma: no cover, Prevent argument saving during tests
+    if not test_run == "true":  # pragma: no cover, Prevent argument saving during tests
         # Saving best parameters
         utils.save_dict({**args.__dict__, **study.best_trial.params}, args_fp, cls=NumpyEncoder)
         print(f"\nBest value ({metric}): {study.best_trial.value}")
@@ -96,8 +101,11 @@ def optimize(
 
 @app.command()
 def train_model(
-    args_fp: str = "config/args.json", experiment_name: str = "baselines",
-    run_name: str = "sgd", test_run: str="false") -> None:
+    args_fp: str = "config/args.json",
+    experiment_name: str = "baselines",
+    run_name: str = "sgd",
+    test_run: str = "false",
+) -> None:
     """Trains the model (generally 100 epochs) and records experiment to MLflow
     The function also logs metrics and artifacts to mlflow for later retrieval
 
@@ -136,7 +144,7 @@ def train_model(
             mlflow.log_artifacts(dp)
 
     # Save to config
-    if not test_run=="true": # pragma: no cover, Prevent argument saving during tests
+    if not test_run == "true":  # pragma: no cover, Prevent argument saving during tests
         open(Path(config.CONFIG_DIR, "run_id.txt"), "w").write(run_id)
         utils.save_dict(performance, Path(config.CONFIG_DIR, "performance.json"))
 
@@ -161,7 +169,7 @@ def load_artifacts(run_id: str = "", best: bool = True) -> dict:
     # If best is True, we will recover artifacts stored in the root MODEL_DIR
     if best:
         artifacts_dir = Path(config.MODEL_DIR)
-    else: # pragma: no cover, current implementation does not save artifacts in mlflow
+    else:  # pragma: no cover, current implementation does not save artifacts in mlflow
         # Locate specific artifacts directory
         experiment_id = mlflow.get_run(run_id=run_id).info.experiment_id
         artifacts_dir = Path(config.MODEL_DIR, experiment_id, run_id, "artifacts")

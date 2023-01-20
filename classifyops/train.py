@@ -3,8 +3,8 @@ from pathlib import Path
 
 import joblib
 import mlflow
-import optuna
 import numpy as np
+import optuna
 import pandas as pd
 from imblearn.over_sampling import RandomOverSampler
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -119,7 +119,7 @@ def train(args: dict, df: pd.DataFrame, trial: optuna.trial.Trial = None) -> dic
             mlflow.log_metrics({"train_loss": train_loss, "val_loss": val_loss}, step=epoch)
 
         # Pruning ==> this part is implemented in the hyperparameter optimization part
-        if trial: # pragma: no cover, optuna pruning
+        if trial:  # pragma: no cover, optuna pruning
             trial.report(val_loss, epoch)
             if trial.should_prune():
                 raise optuna.TrialPruned()
@@ -127,9 +127,7 @@ def train(args: dict, df: pd.DataFrame, trial: optuna.trial.Trial = None) -> dic
     # Evaluation
     other_index = label_encoder.class_to_index["other"]
     y_prob = model.predict_proba(X_test)
-    y_pred = predict.custom_predict(
-        y_prob=y_prob, threshold=args.threshold, index=other_index
-    )
+    y_pred = predict.custom_predict(y_prob=y_prob, threshold=args.threshold, index=other_index)
     performance = evaluate.get_metrics(
         y_true=y_test, y_pred=y_pred, classes=label_encoder.classes, df=test_df
     )
@@ -145,8 +143,14 @@ def train(args: dict, df: pd.DataFrame, trial: optuna.trial.Trial = None) -> dic
 
 #
 # Defining our optimization objective
-def objective(args: dict, df: pd.DataFrame, trial: optuna.trial.Trial,
-    test_run: str="false", direction: str="maximize", metric: str="f1") -> float:
+def objective(
+    args: dict,
+    df: pd.DataFrame,
+    trial: optuna.trial.Trial,
+    test_run: str = "false",
+    direction: str = "maximize",
+    metric: str = "f1",
+) -> float:
     """Objective defined to perform hyperparameter optimization using the optuna package.
       Target metric : Defaults to f1 score. See metric argument
       Arguments to tune :
@@ -191,11 +195,11 @@ def objective(args: dict, df: pd.DataFrame, trial: optuna.trial.Trial,
     trial.set_user_attr("precision", overall_performance["precision"])
     trial.set_user_attr("recall", overall_performance["recall"])
     trial.set_user_attr("f1", overall_performance["f1"])
-    if not test_run=="true":
+    if not test_run == "true":
         # If we maximize the variable, we take our best_metric variable (starting as 0)
         # As reference
-        if direction=="maximize":
-        # Saving artifacts
+        if direction == "maximize":
+            # Saving artifacts
             if overall_performance[metric] > best_metric:
                 best_metric = overall_performance[metric]
 
@@ -207,8 +211,10 @@ def objective(args: dict, df: pd.DataFrame, trial: optuna.trial.Trial,
                     joblib.dump(artifacts["vectorizer"], file)
                 with open(Path(config.MODEL_DIR, "model.pkl"), "wb") as file:
                     joblib.dump(artifacts["model"], file)
-                utils.save_dict(artifacts["performance"], Path(config.MODEL_DIR, "performance.json"))
-        else: # Taking our best loss variable as reference (starting at inf)
+                utils.save_dict(
+                    artifacts["performance"], Path(config.MODEL_DIR, "performance.json")
+                )
+        else:  # Taking our best loss variable as reference (starting at inf)
             # Saving artifacts
             if overall_performance[metric] < best_loss:
                 best_loss = overall_performance[metric]
@@ -221,6 +227,8 @@ def objective(args: dict, df: pd.DataFrame, trial: optuna.trial.Trial,
                     joblib.dump(artifacts["vectorizer"], file)
                 with open(Path(config.MODEL_DIR, "model.pkl"), "wb") as file:
                     joblib.dump(artifacts["model"], file)
-                utils.save_dict(artifacts["performance"], Path(config.MODEL_DIR, "performance.json"))
+                utils.save_dict(
+                    artifacts["performance"], Path(config.MODEL_DIR, "performance.json")
+                )
 
     return overall_performance[metric]
