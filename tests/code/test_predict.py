@@ -74,4 +74,6 @@ def test_predict(texts, target_pred):
     assert len(pred) == len(texts) # One prediction per input
     # Good column names
     np.testing.assert_array_equal(pred_df.columns, ["input_text", "predicted_tags"])
-    np.testing.assert_array_equal(pred_df['predicted_tags'],target_pred)
+
+    # Behavioral testing implemented in tests/model/test_behavioral.py
+    #np.testing.assert_array_equal(pred_df['predicted_tags'],target_pred)

@@ -32,3 +32,11 @@ venv:
 	python3 -m pip install pip setuptools wheel
 	python3 -m pip install pip --upgrade
 	python3 -m pip install -e .
+
+# Testing
+.PHONY: test
+test:
+	cd tests && great_expectations checkpoint run projects
+	cd tests && great_expectations checkpoint run tags
+	cd tests && great_expectations checkpoint run labeled_projects
+	python3 -m pytest -m "not training"
