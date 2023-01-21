@@ -14,7 +14,7 @@ def load_dict(filepath) -> dict:
     Returns:
         dict: Output dictionary
     """
-    with open(filepath, "r") as fp:
+    with open(filepath) as fp:
         d = json.load(fp)
     return d
 

@@ -16,4 +16,3 @@ plugins:
   - mkdocstrings
 watch:
   - .  # reload docs for any file changes
-

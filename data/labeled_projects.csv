@@ -157,7 +157,7 @@ This repo contains AllenNLP model for prediction of Named Entity categories by i
 426,2020-04-09 16:37:10,The Transformer Family,"This post presents how the vanilla Transformer can be improved for longer-term attention span, less memory and computation consumption, RL task solving, etc.",natural-language-processing
 427,2020-04-09 18:57:01,An Overview of Early Vision in InceptionV1,"A guided tour of the first five layers of InceptionV1,
 taxonomized into “neuron groups.”",computer-vision
-428,2020-04-10 04:57:53,AiLight: Automatic  Highlighting Using BERT,"Automatically highlight pdfs using BERT embeddings and clustering. 
+428,2020-04-10 04:57:53,AiLight: Automatic  Highlighting Using BERT,"Automatically highlight pdfs using BERT embeddings and clustering.
 https://anishthite.github.io/ailight",natural-language-processing
 430,2020-04-10 15:28:43,Controlling Text Generation with Plug and Play Language Models,"This article discusses an alternative approach to controlled text generation, titled the Plug and Play Language Model (PPLM).",natural-language-processing
 431,2020-04-10 15:35:00,Genomic ULMFiT,ULMFiT for Genomic Sequence Data,natural-language-processing
@@ -746,7 +746,7 @@ A chatbot that allows user to signup and login to maintain their record. When c"
 1866,2020-07-14 22:58:15,PYthon Automated Term Extraction,"Term extraction algorithms such as C-Value, Basic, Combo Basic, Weirdness and Term Extractor using spaCy POS tagging.",natural-language-processing
 1867,2020-07-14 23:03:02,YOLOv4 With TensorFlow,"YOLOv4, YOLOv4-tiny, YOLOv3, YOLOv3-tiny Implemented in Tensorflow 2.0, Android. Convert YOLO v4 .weights tensorflow, tensorrt and tflite.",computer-vision
 1868,2020-07-15 03:52:31,Selfie2Anime with TFLite,An end-to-end tutorial with TensorFlow Lite for Selfie2Anime (U-GAT-IT). ,computer-vision
-1869,2020-07-15 20:31:37,Bridging PyTorch and TVM,"Taking Hugging Face transformer BERT from PyTorch and running it on 
+1869,2020-07-15 20:31:37,Bridging PyTorch and TVM,"Taking Hugging Face transformer BERT from PyTorch and running it on
 ApacheTVM for both inference (with reasonable timings) and training.",natural-language-processing
 1870,2020-07-15 20:38:36,Interpretability and Analysis of Models for NLP,An in-depth look at interpretability and analysis of models for NLP (ACL 2020).,natural-language-processing
 1871,2020-07-16 03:58:21,Summarize a webapge,A Flask application that extracts and summarizes webpage using Natural Language Processing. Powered by nlp-akash.,natural-language-processing

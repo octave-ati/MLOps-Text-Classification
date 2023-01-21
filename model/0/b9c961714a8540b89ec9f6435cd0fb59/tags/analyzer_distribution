@@ -1,1 +1,0 @@
-CategoricalDistribution(choices=('word', 'char', 'char_wb'))

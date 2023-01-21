@@ -138,7 +138,7 @@ def preprocess(
 
 
 # Defining custom LabelEncoder
-class LabelEncoder(object):
+class LabelEncoder:
     """Defining a custom Label Encoder (based on sklearn's implementation)"""
 
     def __init__(self, class_to_index={}):

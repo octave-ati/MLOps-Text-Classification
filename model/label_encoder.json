@@ -1,8 +1,0 @@
-{
-    "class_to_index": {
-        "computer-vision": 0,
-        "mlops": 1,
-        "natural-language-processing": 2,
-        "other": 3
-    }
-}
