@@ -13,10 +13,10 @@ style:
 	black .
 	flake8
 	python3 -m isort .
-	# python3 -m mkdocs gh-deploy # Update documentation
+	python3 -m mkdocs gh-deploy # Update documentation
 
 .PHONY: clean
-clean: style
+clean:
 	find . -type f -name "*.DS_Store" -ls -delete
 	find . | grep -E "(__pycache__|\.pyc|\.pyo)" | xargs rm -rf
 	find . | grep -E ".pytest_cache" | xargs rm -rf
@@ -47,7 +47,4 @@ test:
 
 .PHONY: dvc
 dvc:
-	# dvc add data/projects.csv
-	# dvc add data/tags.csv
-	# dvc add data/labeled_projects.csv
 	dvc push
