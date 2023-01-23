@@ -13,7 +13,7 @@ style:
 	black .
 	flake8
 	python3 -m isort .
-	python3 -m mkdocs gh-deploy # Update documentation
+	# python3 -m mkdocs gh-deploy # Update documentation
 
 .PHONY: clean
 clean: style
@@ -37,8 +37,17 @@ venv:
 
 # Testing
 .PHONY: test
+.ONESHELL:
 test:
-	cd tests && great_expectations checkpoint run projects
-	cd tests && great_expectations checkpoint run tags
-	cd tests && great_expectations checkpoint run labeled_projects
 	python3 -m pytest -m "not training"
+	cd tests
+	great_expectations checkpoint run projects
+	great_expectations checkpoint run tags
+	great_expectations checkpoint run labeled_projects
+
+.PHONY: dvc
+dvc:
+	# dvc add data/projects.csv
+	# dvc add data/tags.csv
+	# dvc add data/labeled_projects.csv
+	dvc push

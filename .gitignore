@@ -1,6 +1,6 @@
-#Ignoring the model directory
-model/*
-model/
+#Ignoring the stores and logs
+logs/
+stores/
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

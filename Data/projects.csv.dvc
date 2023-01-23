@@ -1,0 +1,4 @@
+outs:
+- md5: 76e978c1af1b8fa65be6b34dfedf5950
+  size: 160618
+  path: projects.csv
