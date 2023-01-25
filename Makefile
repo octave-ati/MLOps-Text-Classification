@@ -39,7 +39,7 @@ venv:
 .PHONY: test
 .ONESHELL:
 test:
-	python3 -m pytest -m "not training"
+# python3 -m pytest -m "not training" # Done with github actions
 	cd tests
 	great_expectations checkpoint run projects
 	great_expectations checkpoint run tags

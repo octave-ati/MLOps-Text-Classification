@@ -40,12 +40,12 @@ repos:
         args: [--py36-plus]
 -   repo: local
     hooks:
-        # - id: test # Done with github actions
-        #   name: test
-        #   entry: make
-        #   args: ["test"]
-        #   language: system
-        #   pass_filenames: false
+        - id: test # Done with github actions
+          name: test
+          entry: make
+          args: ["test"]
+          language: system
+          pass_filenames: false
         - id: clean
           name: clean
           entry: make
