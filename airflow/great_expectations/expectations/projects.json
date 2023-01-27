@@ -67,10 +67,10 @@
           "datasource_name": "dwh",
           "limit": 1000
         },
-        "citation_date": "2023-01-27T13:41:18.488360Z",
+        "citation_date": "2023-01-27T19:42:13.577633Z",
         "comment": "Created suite added via CLI"
       }
     ],
-    "great_expectations_version": "0.15.44"
+    "great_expectations_version": "0.15.19"
   }
 }
