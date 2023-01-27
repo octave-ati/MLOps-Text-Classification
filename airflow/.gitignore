@@ -1,0 +1,5 @@
+# Ignore dbt transforms
+dbt_transforms/
+
+# DB
+airflow.db

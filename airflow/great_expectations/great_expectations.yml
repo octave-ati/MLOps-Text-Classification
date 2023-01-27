@@ -93,7 +93,7 @@ data_docs_sites:
       class_name: DefaultSiteIndexBuilder
 
 anonymous_usage_statistics:
-  enabled: true
+  enabled: false
   data_context_id: 76c55063-4c36-439b-8251-5c20abade4cf
 notebooks:
 include_rendered_content:

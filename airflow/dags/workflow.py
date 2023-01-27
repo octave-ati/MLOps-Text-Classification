@@ -15,7 +15,7 @@ default_args = {
     "catch_up": False,
 }
 
-BASE_DIR = Path(__file__).parent.parent.parent.absolute()
+BASE_DIR = Path(__file__).parent.parent.absolute()
 GE_DIR = Path(BASE_DIR, "great_expectations")
 
 
@@ -33,7 +33,7 @@ def dataops():
     extract_and_load_projects = AirbyteTriggerSyncOperator(
         task_id="extract_and_load_projects",
         airbyte_conn_id="airbyte",
-        connection_id="5d952c97-620c-44fb-8b00-fc5cb873ba23",  # REPLACE
+        connection_id="5d952c97-620c-44fb-8b00-fc5cb873ba23",
         asynchronous=False,
         timeout=3600,
         wait_seconds=3,
@@ -41,7 +41,7 @@ def dataops():
     extract_and_load_tags = AirbyteTriggerSyncOperator(
         task_id="extract_and_load_tags",
         airbyte_conn_id="airbyte",
-        connection_id="26c08f6f-3b7b-4a91-9c9c-7d4fc1303138",  # REPLACE
+        connection_id="26c08f6f-3b7b-4a91-9c9c-7d4fc1303138",
         asynchronous=False,
         timeout=3600,
         wait_seconds=3,
