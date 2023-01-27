@@ -1,5 +1,9 @@
 from pathlib import Path
 
+from great_expectations_provider.operators.great_expectations import (
+    GreatExpectationsOperator,
+)
+
 from airflow.decorators import dag
 from airflow.providers.airbyte.operators.airbyte import (
     AirbyteTriggerSyncOperator,
@@ -12,6 +16,7 @@ default_args = {
 }
 
 BASE_DIR = Path(__file__).parent.parent.parent.absolute()
+GE_DIR = Path(BASE_DIR, "great_expectations")
 
 
 @dag(
@@ -42,9 +47,23 @@ def dataops():
         wait_seconds=3,
     )
 
+    validate_projects = GreatExpectationsOperator(
+        task_id="validate_projects",
+        checkpoint_name="projects",
+        data_context_root_dir=GE_DIR,
+        fail_task_on_validation_failure=True,
+    )
+
+    validate_tags = GreatExpectationsOperator(
+        task_id="validate_tags",
+        checkpoint_name="tags",
+        data_context_root_dir=GE_DIR,
+        fail_task_on_validation_failure=True,
+    )
+
     # Defining DAG
-    extract_and_load_projects
-    extract_and_load_tags
+    extract_and_load_projects >> validate_projects
+    extract_and_load_tags >> validate_tags
 
 
 # Running DAG
