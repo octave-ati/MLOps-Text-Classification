@@ -14,7 +14,7 @@ repos:
         exclude: "notebooks"
     -   id: check-ast
     -   id: check-json
-    -   id: check-merge-conflict
+    # -   id: check-merge-conflict
     # -   id: detect-aws-credentials
     -   id: detect-private-key
 -   repo: https://github.com/psf/black
@@ -31,7 +31,7 @@ repos:
     rev: 5.11.2
     hooks:
     -   id: isort
-        args: []
+        args: ["--profile", "black", "--filter-files"]
         files: .
 -   repo: https://github.com/asottile/pyupgrade  # update python syntax
     rev: v3.3.1

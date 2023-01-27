@@ -38,3 +38,36 @@ docker ps
 # Stopping container
 docker stop CONTAINER_ID # To be edited with container_id
 docker stop $(docker ps -a -q) # Stop all containers
+
+# Airflow configuration
+export AIRFLOW_HOME=${PWD}/airflow
+AIRFLOW_VERSION=2.5.1
+PYTHON_VERSION="$(python --version | cut -d " " -f 2 | cut -d "." -f 1-2)"
+CONSTRAINT_URL="https://raw.githubusercontent.com/apache/airflow/constraints-${AIRFLOW_VERSION}/constraints-${PYTHON_VERSION}.txt"
+
+# Installing Airflow
+python3 -m pip install "apache-airflow==${AIRFLOW_VERSION}" --constraint "${CONSTRAINT_URL}"
+
+# Initializing DB (SQLite by default)
+airflow db init
+
+# Updating airflow container with airflow.cfg
+airflow db reset -y
+
+# Initializing airflow user
+airflow users create \
+    --username admin \
+    --firstname FIRSTNAME \
+    --lastname LASTNAME \
+    --role Admin \
+    --email EMAIL
+
+# Launching airflow web server
+export AIRFLOW_HOME=${PWD}/airflow
+airflow webserver --port 8080  # http://localhost:8080
+
+# Launching airflow scheduler
+source venv/bin/activate
+export AIRFLOW_HOME=${PWD}/airflow
+export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
+airflow scheduler
