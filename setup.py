@@ -27,6 +27,7 @@ deploy_packages = [
     "apache-airflow-providers-airbyte==3.1.0",
     "pybigquery==0.10.2",
     "sqlalchemy_bigquery==1.4.4",
+    "db_dtypes==1.0.5",
 ]
 
 setup(
