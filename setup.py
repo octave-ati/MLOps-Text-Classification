@@ -16,8 +16,17 @@ style_packages = ["black==22.3.0", "flake8==3.9.2", "isort==5.10.1", "black[jupy
 test_packages = [
     "pytest==7.2.1",
     "pytest-cov==4.0.0",
-    "great-expectations==0.15.44",
+    "great-expectations==0.15.19",
     "pre-commit==2.21.0",
+]
+
+deploy_packages = [
+    "apache-airflow==2.3.3",
+    "airflow-provider-great-expectations==0.1.1",
+    "google-cloud-bigquery==3.4.2",
+    "apache-airflow-providers-airbyte==3.1.0",
+    "pybigquery==0.10.2",
+    "sqlalchemy_bigquery==1.4.4",
 ]
 
 setup(
@@ -31,7 +40,7 @@ setup(
     py_modules=[],
     install_requires=[required_packages],
     extras_require={
-        "dev": docs_packages + style_packages + test_packages,
+        "dev": docs_packages + style_packages + test_packages + deploy_packages,
         "docs": docs_packages,
         "test": test_packages,
     },

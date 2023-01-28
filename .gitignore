@@ -1,6 +1,10 @@
-#Ignoring the stores and logs
+# Ignoring the stores and logs
 logs/
 stores/blob/
+
+# Secrets
+secrets/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
