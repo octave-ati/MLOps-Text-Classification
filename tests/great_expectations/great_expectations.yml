@@ -119,10 +119,6 @@ data_docs_sites:
       class_name: DefaultSiteIndexBuilder
 
 anonymous_usage_statistics:
-  enabled: true
+  enabled: false
   data_context_id: 675b051c-bd9c-4f89-92f4-9b27b27dc8a5
 notebooks:
-include_rendered_content:
-  expectation_suite: false
-  expectation_validation_result: false
-  globally: false

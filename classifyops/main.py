@@ -101,7 +101,7 @@ def optimize(
 
 @app.command()
 def train_model(
-    args_fp: str = "config/args.json",
+    args_fp: str = "stores/model/args.json",
     experiment_name: str = "baselines",
     run_name: str = "sgd",
     test_run: str = "false",
@@ -137,6 +137,7 @@ def train_model(
 
         # Log artifacts
         with tempfile.TemporaryDirectory() as dp:
+            print(str(config.MODEL_DIR))
             artifacts["label_encoder"].save(Path(dp, "label_encoder.json"))
             joblib.dump(artifacts["vectorizer"], Path(dp, "vectorizer.pkl"))
             joblib.dump(artifacts["model"], Path(dp, "model.pkl"))

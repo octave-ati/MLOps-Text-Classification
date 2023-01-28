@@ -37,7 +37,7 @@ STOPWORDS = []
 ACCEPTED_TAGS = ["natural-language-processing", "computer-vision", "mlops", "graph-learning"]
 
 # Mlflow setup
-mlflow.set_tracking_uri("file:///" + str(MODEL_DIR.absolute()))
+mlflow.set_tracking_uri("file://" + str(MODEL_DIR.absolute()))
 
 
 # Logger config
