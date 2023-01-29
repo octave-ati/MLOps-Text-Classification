@@ -28,6 +28,7 @@ deploy_packages = [
     "pybigquery==0.10.2",
     "sqlalchemy_bigquery==1.4.4",
     "db_dtypes==1.0.5",
+    "feast==0.25.0",
 ]
 
 setup(
