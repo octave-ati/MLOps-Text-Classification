@@ -1,9 +1,8 @@
 [flake8]
-exclude = venv
-ignore = E501, W503, E226, E402
+exclude = venv, airflow/dag/workflow.py
+ignore = E501, W503, E226
 max-line-length = 79
 
 # E501: Line too long
 # W503: Line break occurred before binary operator
 # E226: Missing white space around arithmetic operator
-# E402: Module import not at top of file
