@@ -9,18 +9,19 @@ The different steps of this project include:
 - Development of a MVP model on Jupyter Notebook
 - Experiment Tracking with MLFlow
 - Hyperparameter optimization with Optuna
-- Project packaging and deployment on FastAPI
+- Project packaging, dockerizing and deployment on FastAPI
 - Data visualization on Streamlit
 - Test-driven development with Pytest - Great-Expectations (GE)
 - Code cleaning and documentation ([Link](https://faskill.github.io/MLOps-Text-Classification/))
 with mkdocs, flake8, isort and black.
-- Data and model versioning using dvc and Github
+- Data and model versioning using DVC and Github
 - Implementation of CI/CD pratices with Github actions / pre-commit
 - Creation of a modern data stack including Airbyte, BigQuery and dbt
-- Orchestration of the DataOps and MLOps pipelines with Airflow
+- Orchestration of the DataOps pipeline in a [separate repository](https://github.com/Faskill/data-engineering) with Airflow
+- Orchestration of the MLOps pipeline with Airflow
 - Creation of a feature store with Feast
 
-Here is a flowchart I created to explain the main processes implemented in the project :
+## Project Flowchart
 
 ![Project Flowchart](img/flowchart.png)
 
@@ -29,7 +30,38 @@ Here is a flowchart I created to explain the main processes implemented in the p
 * [Jupyter Notebook (MVP - Tracer Bullet)](Notebook.ipynb)
 * [Packaged Project Folder](classifyops/)
 * [FastAPI Folder](app/)
-*
+* [Streamlit Folder](streamlit/)
+* [Dockerfile](Dockerfile)
+* [Testing folder (including Great Expectations)](/tests/)
+* [MLOps Airflow pipeline](/airflow)
+* [DataOps Airflow pipeline (separate repository)](https://github.com/Faskill/data-engineering)
+* [Root repository Folder](https://github.com/Faskill/MLOps-Text-Classification)
+
+## Libraries / Packages Used
+
+* [Feast](https://feast.dev/)
+* [Apache Airflow](https://airflow.apache.org/)
+* [BigQuery](https://cloud.google.com/bigquery)
+* [Airbyte](https://airbyte.com/)
+* [Isort](https://pycqa.github.io/isort/)
+* [Flake8](https://flake8.pycqa.org/)
+* [Black](https://black.readthedocs.io/)
+* [Mkdocs](https://www.mkdocs.org/)
+* [Pre-commit](https://pre-commit.com/)
+* [Great-expectations](https://greatexpectations.io/)
+* [Pytest](https://pytest.org/)
+* [DVC](https://dvc.org/)
+* [Streamlit](https://streamlit.io/)
+* [FastAPI](https://fastapi.tiangolo.com/)
+* [Rich](https://rich.readthedocs.io/en/stable/introduction.html)
+* [MLFlow](https://mlflow.org/)
+* [Snorkel](https://www.snorkel.org/)
+* [Imbalanced-Learn](https://imbalanced-learn.org/)
+* [Scikit-Learn](https://scikit-learn.org/)
+* [nltk](https://www.nltk.org/)
+* Pandas / Numpy
+
+## Quick how-to
 
 ### Virtual environment creation
 
@@ -40,89 +72,46 @@ python3 -m pip --upgrade pip
 python3 -m pip install pip setuptools wheel
 python3 -m pip install -e .
 ```
-
-### Extracting data from the source
-
-```bash
-python3 -m pip install numpy pandas pretty-errors
-python
->>from classifyops import main
-```
-
-
 ### Launching App
-
+```bash
 uvicorn app.api:app --host 0.0.0.0 --port 8000 --reload --reload-dir classifyops --reload-dir app  # dev
 gunicorn -c app/gunicorn.py -k uvicorn.workers.UvicornWorker app.api:app  # prod
+```
 
-# Building docker container
+### Building docker container
+```bash
 docker build -t classifyops:latest -f Dockerfile .
+```
 
-# Running container
+### Running container
+```bash
 docker run -p 8000:8000 --name classifyops classifyops:latest
+```
 
-# See running containers
-docker ps
+### Airflow orchestration (MLOps)
 
-# Stopping container
-docker stop CONTAINER_ID # To be edited with container_id
-docker stop $(docker ps -a -q) # Stop all containers
+On one terminal (in the root project dir), launch airflow server:
+```bash
+source venv/bin/activate
+export AIRFLOW_HOME=${PWD}/airflow
+export GOOGLE_APPLICATION_CREDENTIALS=/Link/to/BigQuery/JSON/file.json
+airflow webserver --port 8080
+```
 
-# Designing an Image Segmentation Model
+On a second terminal, launch airflow scheduler:
+```bash
+source venv/bin/activate
+export AIRFLOW_HOME=${PWD}/airflow
+export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
+export GOOGLE_APPLICATION_CREDENTIALS=/Link/to/BigQuery/JSON/file.json
+airflow scheduler
+```
 
-An Image Segmentation Model designed to be used within the Computer Vision System
-of a Self Driving Vehicle.
+The Airflow orchestration workflow (DAG) can be launched from your browser on
+http://localhost:8080 :
 
-It is trained based on the [Cityscrapes Dataset](https://www.cityscapes-dataset.com/).
+![airflow](/img/Airflow_mlops.PNG)
 
-This model identifies different classes of objects in photos captured by a Vehicle's sensors :
-
-- Constructions
-- Nature
-- Sky
-- People
-- Vehicle
-- Object
-
-Due to limited computing power at my disposal, the model is not able to differentiate between
-different types of objects within the same class (example : it does not differentiate a truck
-from a car).
-
-The prediction API is then published on a web interface using Flask.
-
-## Useful Links
-
-* [Project presentation (Powerpoint)](Project_Presentation.pptx)
-* [Technical Report of Model development (Word)](Technical_Report.docx)
-* [Jupyter Notebook (Model training)](Notebook.ipynb)
-* [Flask Deployment Folder](Deployment/)
-
-## Screenshots
-
-### Web Interface
-![Web Interface](img/website.png)
-
-### Model Prediction
-![Raw Image](img/input.png)
-![Prediction](img/prediction.png)
-![True Mask](img/true.png)
-
-### Predicts stock images
-![Real Image](img/real_image.png)
-![Prediction](img/real_prediction.png)
-
-## Libraries / Packages Used
-
-* [Tensorflow - Keras](https://www.tensorflow.org/)
-* [Flask](https://flask.palletsprojects.com/en/2.2.x/)
-* [Scikit-Image](https://scikit-image.org/)
-* [Albumentations](https://albumentations.ai/)
-* [Open CV](https://opencv.org/)
-* [Segmentation Models](https://github.com/qubvel/segmentation_models)
-* [SqueezeNet Keras Implementation](https://github.com/rcmalli/keras-squeezenet)
-* [Bootstrap](https://getbootstrap.com/)
-* Matplotlib / Seaborn
-* Pandas / Numpy
 
 ## Developed By
 
