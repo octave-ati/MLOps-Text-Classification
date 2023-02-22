@@ -25,6 +25,18 @@ with mkdocs, flake8, isort and black.
 
 ![Project Flowchart](img/flowchart.png)
 
+## Experiment Tracking
+
+![Experiment Tracking](img/expe_tracking.png)
+
+## Pruning
+
+![Pruning](img/pruning.png)
+
+## Hyperparameter importance
+
+![Hyperparameter importance](img/hyperparameter_importance.png)
+
 ## Useful Links
 
 * [Jupyter Notebook (MVP - Tracer Bullet)](Notebook.ipynb)
