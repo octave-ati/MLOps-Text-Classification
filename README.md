@@ -39,7 +39,7 @@ with mkdocs, flake8, isort and black.
 
 ## Useful Links
 
-* [Jupyter Notebook (MVP - Tracer Bullet)](Notebook.ipynb)
+* [Jupyter Notebook (POC - Tracer Bullet)](Notebook.ipynb)
 * [Packaged Project Folder](classifyops/)
 * [FastAPI Folder](app/)
 * [Streamlit Folder](streamlit/)
