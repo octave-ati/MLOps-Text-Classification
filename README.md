@@ -4,6 +4,11 @@ In this project, I apply MLOps and DataOps practices to the deployment
 of a text classification model aiming at classifying ML projects in
 different categories.
 
+## Project Flowchart
+
+![Project Flowchart](img/flowchart.png)
+
+
 The different steps of this project include:
 
 - Development of a MVP model on Jupyter Notebook
@@ -20,10 +25,6 @@ with mkdocs, flake8, isort and black.
 - Orchestration of the DataOps pipeline in a [separate repository](https://github.com/Faskill/data-engineering) with Airflow
 - Orchestration of the MLOps pipeline with Airflow
 - Creation of a feature store with Feast
-
-## Project Flowchart
-
-![Project Flowchart](img/flowchart.png)
 
 ## Experiment Tracking
 
